@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://magiccitydetailing.com/sitemap.xml
