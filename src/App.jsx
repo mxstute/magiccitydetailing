@@ -100,24 +100,24 @@ function Hero() {
 function Packages() {
   const pkgs = [
     {
-      name: "Essential Wash",
-      price: "$89+",
-      desc: "The perfect maintenance wash",
-      items: ["Hand wash & dry", "Wheel & tire cleaning", "Window cleaning inside & out", "Tire dressing", "Interior vacuum & wipe-down"],
-      time: "~1.5 hours",
+      name: "Interior Detail",
+      price: "$199+",
+      desc: "Deep interior restoration",
+      items: ["Full vacuum & compressed air blowout", "Carpet & seat shampoo extraction", "Leather cleaning & conditioning", "Dashboard & console deep clean", "Window cleaning inside & out", "Air freshener treatment"],
+      time: "~2.5 hours",
       highlight: false,
     },
     {
       name: "Full Detail",
-      price: "$199+",
-      desc: "Inside and out — the works",
-      items: ["Everything in Essential", "Clay bar treatment", "One-step polish", "Carnauba wax protection", "Deep interior shampoo", "Leather conditioning", "Air freshener treatment"],
-      time: "~3 hours",
+      price: "$299+",
+      desc: "Complete inside & out — our most popular",
+      items: ["Everything in Interior Detail", "Hand wash & dry", "Clay bar decontamination", "One-step polish & carnauba wax", "Wheel & tire detail", "Door jambs & trim dressing"],
+      time: "~3.5 hours",
       highlight: true,
     },
     {
       name: "Showroom Elite",
-      price: "$399+",
+      price: "$499+",
       desc: "Concours-level restoration",
       items: ["Everything in Full Detail", "Multi-stage paint correction", "Ceramic sealant application", "Engine bay detail", "Headlight restoration", "Trim & plastic restoration", "6-month protection guarantee"],
       time: "~5–6 hours",
@@ -180,12 +180,12 @@ function Packages() {
 
 function AddOns() {
   const items = [
-    { name: "Ceramic Coating", price: "$299+", desc: "Long-lasting hydrophobic protection" },
-    { name: "Paint Correction", price: "$199+", desc: "Remove swirls, scratches, and oxidation" },
-    { name: "Headlight Restoration", price: "$59+", desc: "Crystal-clear headlights again" },
-    { name: "Pet Hair Removal", price: "$49+", desc: "Deep extraction from seats and carpet" },
-    { name: "Odor Elimination", price: "$79+", desc: "Ozone treatment for stubborn smells" },
-    { name: "Engine Bay Detail", price: "$69+", desc: "Degreased, dressed, and show-ready" },
+    { name: "Ceramic Coating", price: "$799+", desc: "Long-lasting hydrophobic protection" },
+    { name: "Paint Correction", price: "$249+", desc: "Remove swirls, scratches, and oxidation" },
+    { name: "Headlight Restoration", price: "$79+", desc: "Crystal-clear headlights again" },
+    { name: "Pet Hair Removal", price: "$59+", desc: "Deep extraction from seats and carpet" },
+    { name: "Odor Elimination", price: "$99+", desc: "Ozone treatment for stubborn smells" },
+    { name: "Engine Bay Detail", price: "$89+", desc: "Degreased, dressed, and show-ready" },
   ];
 
   return (
