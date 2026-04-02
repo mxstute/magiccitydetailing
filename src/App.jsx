@@ -115,7 +115,7 @@ function Nav() {
         {/* Center: Nav Links */}
         <div className="nav-center-links" style={{ display: "flex", alignItems: "center", gap: 36 }}>
           {links.map(l => (
-            <a key={l.label} href={l.href} style={linkStyle}
+            <a key={l.label} href={l.href} style={linkStyle}}
               onMouseEnter={e => e.target.style.color = PINK}
               onMouseLeave={e => e.target.style.color = LIGHT}>{l.label}</a>
           ))}
@@ -250,7 +250,7 @@ function Packages() {
               background: DARK3, borderRadius: 20, padding: 32, position: "relative", overflow: "hidden", transition: "all 0.3s ease", cursor: "default",
               border: p.highlight ? `1.5px solid ${PINK}44` : "1px solid rgba(255,255,255,0.04)",
               display: "flex", flexDirection: "column",
-            }
+            }}
             onMouseEnter={e => { e.currentTarget.style.border = "1px solid rgba(244,114,182,0.2)"; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(244,114,182,0.12)"; }}
             onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(255,255,255,0.04)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
               {p.highlight && <div style={{
@@ -313,7 +313,7 @@ function AddOns() {
             <div key={it.name} style={{
               background: DARK3, borderRadius: 12, padding: "18px 22px", transition: "all 0.3s ease", cursor: "default",
               border: "1px solid rgba(255,255,255,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center",
-            }
+            }}
             onMouseEnter={e => { e.currentTarget.style.border = "1px solid rgba(244,114,182,0.2)"; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(244,114,182,0.12)"; }}
             onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(255,255,255,0.04)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
               <div>
