@@ -177,7 +177,7 @@ function Hero() {
           Showroom-Quality
         </h1>
         <h1 style={{
-          fontFamily: "'Playfair Display',serif", fontSize: "clamp(34px,5.5vw,60px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 20px",
+          fontFamily: "'Playfair Display',serif", fontSize: "clamp(34px,5.5vw,60px)", fontWeight: 700, lineHeight: 1.3, margin: "0 0 20px", paddingBottom: "0.1em",
           background: `linear-gradient(135deg, ${PINK}, ${BLUE})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         }}>Mobile Detailing</h1>
 
