@@ -247,10 +247,12 @@ function Packages() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 20 }}>
           {pkgs.map(p => (
             <div key={p.name} style={{
-              background: DARK3, borderRadius: 20, padding: 32, position: "relative", overflow: "hidden",
+              background: DARK3, borderRadius: 20, padding: 32, position: "relative", overflow: "hidden", transition: "all 0.3s ease", cursor: "default",
               border: p.highlight ? `1.5px solid ${PINK}44` : "1px solid rgba(255,255,255,0.04)",
               display: "flex", flexDirection: "column",
-            }}>
+            }
+            onMouseEnter={e => { e.currentTarget.style.border = "1px solid rgba(244,114,182,0.2)"; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(244,114,182,0.12)"; }}
+            onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(255,255,255,0.04)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
               {p.highlight && <div style={{
                 position: "absolute", top: 14, right: -28, background: PINK, color: "#fff",
                 fontFamily: "'Outfit',sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 1,
@@ -309,9 +311,11 @@ function AddOns() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
           {items.map(it => (
             <div key={it.name} style={{
-              background: DARK3, borderRadius: 12, padding: "18px 22px",
+              background: DARK3, borderRadius: 12, padding: "18px 22px", transition: "all 0.3s ease", cursor: "default",
               border: "1px solid rgba(255,255,255,0.03)", display: "flex", justifyContent: "space-between", alignItems: "center",
-            }}>
+            }
+            onMouseEnter={e => { e.currentTarget.style.border = "1px solid rgba(244,114,182,0.2)"; e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 8px 32px rgba(244,114,182,0.12)"; }}
+            onMouseLeave={e => { e.currentTarget.style.border = "1px solid rgba(255,255,255,0.04)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>
               <div>
                 <h4 style={{ fontFamily: "'Outfit',sans-serif", fontSize: 14, fontWeight: 600, color: LIGHT, margin: "0 0 2px" }}>{it.name}</h4>
                 <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, color: GRAY, margin: 0 }}>{it.desc}</p>
