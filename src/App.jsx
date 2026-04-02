@@ -177,7 +177,7 @@ function Hero() {
           Showroom-Quality
         </h1>
         <h1 style={{
-          fontFamily: "'Playfair Display',serif", fontSize: "clamp(34px,5.5vw,60px)", fontWeight: 700, lineHeight: 1.3, margin: "0 0 20px", paddingBottom: "0.1em",
+          fontFamily: "'Playfair Display',serif", fontSize: "clamp(34px,5.5vw,60px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 20px",
           background: `linear-gradient(135deg, ${PINK}, ${BLUE})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
         }}>Mobile Detailing</h1>
 
@@ -236,7 +236,7 @@ function Packages() {
   ];
 
   return (
-    <section id="packages" style={{ background: DARK2, padding: "80px 24px" }}>
+    <section id="packages" style={{ background: `linear-gradient(180deg, ${DARK} 0%, ${DARK2} 30%, ${DARK2} 70%, ${DARK} 100%)`, padding: "80px 24px" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 48 }}>
           <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 11, fontWeight: 600, color: PINK, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10 }}>Packages</div>
@@ -327,7 +327,7 @@ function AddOns() {
 
 function Fleet() {
   return (
-    <section id="fleet" style={{ background: DARK2, padding: "80px 24px" }}>
+    <section id="fleet" style={{ background: `linear-gradient(180deg, ${DARK} 0%, ${DARK2} 30%, ${DARK2} 70%, ${DARK} 100%)`, padding: "80px 24px" }}>
       <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
         <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 11, fontWeight: 600, color: PINK, letterSpacing: 3, textTransform: "uppercase", marginBottom: 10 }}>For Businesses</div>
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(26px,4vw,38px)", fontWeight: 700, color: LIGHT, margin: "0 0 16px" }}>Fleet & Dealership Programs</h2>
@@ -368,7 +368,7 @@ function Areas() {
 
 function CTA() {
   return (
-    <section style={{ background: `linear-gradient(135deg, ${PINK}18, ${BLUE}0D)`, padding: "80px 24px" }}>
+    <section style={{ background: `linear-gradient(180deg, ${DARK} 0%, rgba(244,114,182,0.06) 25%, rgba(125,211,252,0.03) 75%, ${DARK} 100%)`, padding: "80px 24px" }}>
       <div style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>✨</div>
         <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: "clamp(26px,4vw,40px)", fontWeight: 700, color: LIGHT, margin: "0 0 12px" }}>Your Car Deserves Better</h2>
@@ -385,16 +385,48 @@ function CTA() {
 }
 
 function Footer() {
+  const otherServices = [
+    { name: "Junk Removal", desc: "Cleanouts, hauling & debris removal", icon: "🚛", url: "https://magiccityjunkremovalmiami.com" },
+    { name: "Pressure Washing", desc: "Driveways, house exteriors, roofs & more", icon: "💦", url: "https://magiccitypressurewashingmiami.com" },
+  ];
   return (
-    <footer style={{ background: DARK, padding: "40px 24px 20px", borderTop: "1px solid rgba(255,255,255,0.04)" }}>
-      <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 700, color: PINK }}>MAGIC CITY</div>
-          <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 8, color: BLUE, letterSpacing: 2 }}>DETAILING</div>
+    <>
+      <section style={{ background: `linear-gradient(180deg, ${DARK} 0%, #1A1035 30%, #1A1035 70%, ${DARK} 100%)`, padding: "60px 24px" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 11, fontWeight: 700, color: PINK, letterSpacing: 3, textTransform: "uppercase", marginBottom: 12 }}>More from Magic City</div>
+          <h3 style={{ fontFamily: "'Playfair Display',serif", fontSize: 28, fontWeight: 700, color: LIGHT, margin: "0 0 8px" }}>Explore All Our Services</h3>
+          <p style={{ fontFamily: "'Outfit',sans-serif", fontSize: 14, color: GRAY, marginBottom: 32 }}>One company. Three services. All of Miami-Dade covered.</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 32 }}>
+            {otherServices.map(s => (
+              <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                style={{ display: "block", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(244,114,182,0.12)", borderRadius: 16, padding: "24px 20px", textDecoration: "none", transition: "all 0.3s ease" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = PINK; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.background = "rgba(244,114,182,0.05)"; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(244,114,182,0.12)"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>{s.icon}</div>
+                <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 16, fontWeight: 700, color: LIGHT, marginBottom: 4 }}>{s.name}</div>
+                <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 13, color: GRAY, marginBottom: 12 }}>{s.desc}</div>
+                <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 600, color: PINK }}>Learn More →</div>
+              </a>
+            ))}
+          </div>
+          <a href="https://magiccityservicesmiami.com" target="_blank" rel="noopener noreferrer"
+            style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "14px 32px", background: `linear-gradient(135deg, ${PINK}, #E04DA0)`, borderRadius: 50, textDecoration: "none", fontFamily: "'Outfit',sans-serif", fontSize: 14, fontWeight: 700, color: "#fff", transition: "transform 0.2s, box-shadow 0.2s", boxShadow: "0 4px 20px rgba(244,114,182,0.3)" }}
+            onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.03)"; e.currentTarget.style.boxShadow = "0 6px 30px rgba(244,114,182,0.45)"; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(244,114,182,0.3)"; }}>
+            View All Magic City Services
+          </a>
         </div>
-        <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: 11, color: "#475569" }}>© 2026 Magic City Services LLC — Licensed & Insured — Miami-Dade, FL</span>
-      </div>
-    </footer>
+      </section>
+      <footer style={{ background: DARK, padding: "40px 24px 20px" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 16, alignItems: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 700, color: PINK }}>MAGIC CITY</div>
+            <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 8, color: BLUE, letterSpacing: 2 }}>DETAILING</div>
+          </div>
+          <span style={{ fontFamily: "'Outfit',sans-serif", fontSize: 11, color: "#475569" }}>© 2026 Magic City Services LLC — Licensed & Insured — Miami-Dade, FL</span>
+        </div>
+      </footer>
+    </>
   );
 }
 
@@ -470,7 +502,7 @@ function BookingSystem() {
 
   if (submitted) {
     return (
-      <section id="book" style={{ background: DARK2, padding: "80px 24px" }}>
+      <section id="book" style={{ background: `linear-gradient(180deg, ${DARK} 0%, ${DARK2} 30%, ${DARK2} 70%, ${DARK} 100%)`, padding: "80px 24px" }}>
         <div style={{ maxWidth: 560, margin: "0 auto", textAlign: "center", background: DARK3, borderRadius: 24, padding: "44px 28px", border: "1px solid rgba(244,114,182,0.15)" }}>
           <div style={{ fontSize: 56, marginBottom: 20 }}>🎉</div>
           <h2 style={{ fontFamily: "'Playfair Display',serif", fontSize: 32, fontWeight: 700, color: LIGHT, margin: "0 0 12px" }}>Booking Confirmed!</h2>
@@ -488,7 +520,7 @@ function BookingSystem() {
   }
 
   return (
-    <section id="book" style={{ background: `linear-gradient(180deg, ${DARK} 0%, ${DARK2} 100%)`, padding: "80px 24px" }}>
+    <section id="book" style={{ background: `linear-gradient(180deg, ${DARK} 0%, ${DARK2} 35%, ${DARK2} 65%, ${DARK} 100%)`, padding: "80px 24px" }}>
       <div style={{ maxWidth: 600, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 12, fontWeight: 600, color: PINK, letterSpacing: 3, textTransform: "uppercase", marginBottom: 12 }}>Get Started</div>
