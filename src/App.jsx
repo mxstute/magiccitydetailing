@@ -67,6 +67,74 @@ export default function DetailingSite() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#0B1120", color: "#F8FAFC", fontFamily: "'Outfit', sans-serif", overflowX: "hidden" }}>
+            <style>{`
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        html, body, #root { margin: 0; padding: 0; background: #0B1120; min-height: 100vh; }
+        input, textarea, select, button { max-width: 100%; box-sizing: border-box; }
+        section[id], footer[id] { scroll-margin-top: 60px; }
+
+        .pkg-card { transition: all 0.25s ease !important; }
+        .pkg-card:hover { 
+          border-color: rgba(125,211,252,0.5) !important;
+          box-shadow: 0 0 20px rgba(125,211,252,0.12), 0 4px 12px rgba(0,0,0,0.3);
+          transform: translateY(-2px);
+        }
+
+        .price-row { transition: all 0.25s ease !important; }
+        .price-row:hover {
+          border-color: rgba(244,114,182,0.3) !important;
+          box-shadow: 0 0 16px rgba(244,114,182,0.1);
+          transform: translateX(4px);
+          background: rgba(30,41,59,0.6) !important;
+        }
+
+        .info-card { transition: all 0.3s ease !important; }
+        .info-card:hover {
+          border-color: rgba(244,114,182,0.4) !important;
+          box-shadow: 0 0 24px rgba(244,114,182,0.12), 0 8px 20px rgba(0,0,0,0.3);
+          transform: translateY(-4px);
+        }
+        .info-card:hover .info-icon { transform: scale(1.2); }
+        .info-icon { transition: transform 0.3s ease; display: inline-block; }
+
+        .cross-link { transition: all 0.25s ease !important; }
+        .cross-link:hover {
+          border-color: rgba(125,211,252,0.4) !important;
+          box-shadow: 0 0 16px rgba(125,211,252,0.1);
+          transform: translateY(-2px);
+        }
+
+        .tab-btn { transition: all 0.2s ease !important; }
+        .tab-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .cta-btn { transition: all 0.3s ease !important; }
+        .cta-btn:hover { transform: scale(1.02); box-shadow: 0 0 24px rgba(244,114,182,0.3); }
+        .cta-btn:active { transform: scale(0.98); }
+
+        .phone-btn { transition: all 0.25s ease !important; }
+        .phone-btn:hover { box-shadow: 0 0 20px rgba(244,114,182,0.4); transform: scale(1.05); }
+
+        .stat-item { transition: all 0.3s ease; }
+        .stat-item:hover { transform: scale(1.08); }
+
+        .area-badge { transition: all 0.3s ease; }
+        .area-badge:hover { background: rgba(244,114,182,0.15) !important; border-color: rgba(244,114,182,0.5) !important; transform: scale(1.03); }
+
+        .deposit-box { transition: all 0.3s ease; }
+        .deposit-box:hover { box-shadow: 0 0 20px rgba(34,197,94,0.15); }
+
+        input:focus, textarea:focus, select:focus {
+          border-color: rgba(244,114,182,0.4) !important;
+          box-shadow: 0 0 12px rgba(244,114,182,0.1);
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.6s ease forwards; }
+      `}</style>
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
 
       {/* NAV */}
@@ -89,12 +157,19 @@ export default function DetailingSite() {
           </div>
         </div>
         <div style={{ display: "flex", gap: "20px", fontSize: "12px", fontWeight: 500 }}>
-          {["PRICING", "BOOK NOW", "AREAS"].map(l => (
-            <span key={l} style={{ color: "#94A3B8", cursor: "pointer", letterSpacing: "0.5px" }}>{l}</span>
+          {[
+            { label: "PRICING", target: "pricing" },
+            { label: "BOOK NOW", target: "booking" },
+            { label: "AREAS", target: "areas" },
+          ].map(l => (
+            <span key={l.label} onClick={() => document.getElementById(l.target)?.scrollIntoView({ behavior: "smooth" })} style={{ color: "#94A3B8", cursor: "pointer", letterSpacing: "0.5px", transition: "color 0.2s" }}
+              onMouseEnter={e => e.target.style.color = "#F472B6"}
+              onMouseLeave={e => e.target.style.color = "#94A3B8"}
+            >{l.label}</span>
           ))}
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <a href="tel:3053068078" style={{
+          <a href="tel:3053068078" className="phone-btn" style={{
             padding: "8px 14px", borderRadius: "20px",
             background: "linear-gradient(135deg, #F472B6, #E04DA0)",
             color: "#fff", fontSize: "12px", fontWeight: 600, textDecoration: "none",
@@ -108,7 +183,7 @@ export default function DetailingSite() {
           display: "inline-block", padding: "6px 20px", borderRadius: "20px",
           border: "1px solid rgba(244,114,182,0.3)", background: "rgba(244,114,182,0.08)",
           fontSize: "11px", color: "#F472B6", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "20px",
-        }}>
+        }} className="area-badge">
           Serving Miami-Dade, Broward & Palm Beach
         </div>
 
@@ -125,7 +200,7 @@ export default function DetailingSite() {
 
         <div style={{ display: "flex", justifyContent: "center", gap: "36px" }}>
           {[{ big: "Insured", sub: "PROFESSIONALS" }, { big: "Guaranteed", sub: "SATISFACTION" }, { big: "We Come", sub: "TO YOU" }].map((s, i) => (
-            <div key={i} style={{ textAlign: "center" }}>
+            <div key={i} className="stat-item" style={{ textAlign: "center" }}>
               <div style={{ fontSize: "18px", fontWeight: 700 }}>{s.big}</div>
               <div style={{ fontSize: "9px", color: "#94A3B8", letterSpacing: "1px", marginTop: "2px" }}>{s.sub}</div>
             </div>
@@ -143,7 +218,7 @@ export default function DetailingSite() {
 
           <div style={{ display: "flex", gap: "4px", marginBottom: "20px", background: "rgba(30,41,59,0.5)", borderRadius: "12px", padding: "4px" }}>
             {[{ id: "book", label: "Book Online" }, { id: "quote", label: "Get a Quote" }, { id: "call", label: "Call Now" }].map(tab => (
-              <button key={tab.id} onClick={() => setBookingTab(tab.id)}
+              <button key={tab.id} className="tab-btn" onClick={() => setBookingTab(tab.id)}
                 style={{
                   flex: 1, padding: "10px", borderRadius: "10px", border: "none",
                   background: bookingTab === tab.id ? "linear-gradient(135deg, #F472B6, #7DD3FC)" : "transparent",
@@ -160,7 +235,7 @@ export default function DetailingSite() {
             <div style={{ padding: "24px 20px", borderRadius: "16px", background: "rgba(30,41,59,0.3)", border: "1px solid rgba(148,163,184,0.1)" }}>
               <label style={labelStyle}>Select Package</label>
               {PACKAGES.map((pkg, i) => (
-                <button key={i} onClick={() => setSelectedPkg(i)}
+                <button key={i} className="pkg-card" onClick={() => setSelectedPkg(i)}
                   style={{
                     width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
                     padding: "14px", marginBottom: "8px", borderRadius: "12px",
@@ -258,7 +333,7 @@ export default function DetailingSite() {
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", textAlign: "center", marginBottom: "6px" }}>Transparent <span style={{ color: "#F472B6" }}>Pricing</span></h2>
           <p style={{ textAlign: "center", fontSize: "13px", color: "#94A3B8", marginBottom: "24px" }}>No hidden fees. No surprises. Just honest pricing.</p>
           {PACKAGES.map((pkg, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", marginBottom: "8px", borderRadius: "12px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)" }}>
+            <div key={i} className="price-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", marginBottom: "8px", borderRadius: "12px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)" }}>
               <div>
                 <div style={{ fontSize: "15px", fontWeight: 600 }}>{pkg.name}</div>
                 <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>{pkg.note}</div>
@@ -290,7 +365,7 @@ export default function DetailingSite() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", maxWidth: "500px", margin: "0 auto" }}>
           {DETAIL_SERVICES.map((s, i) => (
             <div key={i} style={{ padding: "16px", borderRadius: "12px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)", textAlign: "center" }}>
-              <div style={{ fontSize: "28px", marginBottom: "8px" }}>{s.icon}</div>
+              <div className="info-icon" style={{ fontSize: "28px", marginBottom: "8px" }}>{s.icon}</div>
               <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>{s.name}</div>
               <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1.3 }}>{s.desc}</div>
             </div>
@@ -321,7 +396,7 @@ export default function DetailingSite() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ padding: "30px 16px", textAlign: "center", borderTop: "1px solid rgba(148,163,184,0.1)", background: "#0B1120" }}>
+      <footer id="footer" style={{ padding: "30px 16px", textAlign: "center", borderTop: "1px solid rgba(148,163,184,0.1)", background: "#0B1120" }}>
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 700, background: "linear-gradient(135deg, #F472B6, #7DD3FC)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>Magic City Detailing</div>
         <p style={{ fontSize: "12px", color: "#94A3B8", marginBottom: "12px" }}>Miami-Dade • Broward • Palm Beach</p>
         <p style={{ fontSize: "12px", color: "#F472B6", fontWeight: 600, letterSpacing: "1px", marginBottom: "8px" }}>Contact Us:</p>
