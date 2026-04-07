@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 /*
   MAGIC CITY DETAILING — v3
@@ -358,7 +359,7 @@ export default function DetailingSite() {
               <label style={labelStyle}>Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" style={{ ...inputStyle, marginBottom: "10px" }} />
               <label style={labelStyle}>Your Location (we come to you)</label>
-              <input type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Street, City, State, Zip Code" style={{ ...inputStyle, marginBottom: "20px" }} />
+              <AddressAutocomplete value={address} onChange={setAddress} placeholder="Street, City, State, Zip Code" inputStyle={{ ...inputStyle, marginBottom: "20px" }} />
 
               {selectedPackage && (
                 <div style={{ padding: "14px", borderRadius: "12px", marginBottom: "14px", background: "linear-gradient(135deg, rgba(34,197,94,0.08), rgba(244,114,182,0.08))", border: "1px solid rgba(34,197,94,0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
