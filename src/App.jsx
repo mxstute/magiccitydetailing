@@ -23,6 +23,138 @@ const ADDONS = [
   { name: "Engine Bay Detail", price: "$89+" },
 ];
 
+const PACKAGE_SPECS = {
+  "Interior Detail": {
+    time: "1-2 hours",
+    items: [
+      "Full interior vacuum (seats, carpets, floor mats, trunk, crevices, under seats)",
+      "Floor mat removal, cleaning, and reinstallation",
+      "Dashboard, center console, and door panel wipe-down and dressing",
+      "Air vent cleaning and dust removal",
+      "Steering wheel, gear shift, and control surface cleaning",
+      "Cup holder and storage compartment cleanout",
+      "Interior window and mirror cleaning (streak-free)",
+      "Leather/vinyl conditioning (seats, doors, and trim)",
+      "Fabric seats: spot treatment and light shampoo",
+      "Door jamb wipe-down",
+      "Seat belt wipe-down",
+      "Rubber/plastic trim UV protectant application",
+      "Air freshener application",
+      "Final inspection and touch-up",
+    ],
+  },
+  "Full Detail (Int + Ext)": {
+    time: "2-4 hours",
+    tierUp: "Everything in Interior Detail, PLUS:",
+    items: [
+      "Full hand wash (two-bucket method, pH-neutral soap)",
+      "Wheel and tire cleaning (brake dust removal, tire scrub)",
+      "Tire dressing / tire shine application",
+      "Wheel well cleaning",
+      "Door jamb detail cleaning",
+      "Bug and tar removal (front bumper, hood, mirrors)",
+      "Clay bar light pass on paint surface (contamination removal)",
+      "Hand-dry with microfiber towels (scratch-free)",
+      "Spray wax / sealant application (3-4 week paint protection)",
+      "Exterior window and mirror cleaning",
+      "Exterior plastic and rubber trim dressing",
+      "Chrome and metal accent polishing",
+      "Exhaust tip cleaning",
+      "Final walk-around inspection",
+    ],
+  },
+  "Showroom Elite": {
+    time: "3-6 hours",
+    tierUp: "Everything in Full Detail, PLUS:",
+    items: [
+      "Deep carpet and upholstery extraction (hot water shampoo/steam)",
+      "Leather deep clean and conditioner (multi-step treatment)",
+      "Headliner spot cleaning",
+      "Full clay bar treatment (all painted surfaces, thorough decontamination)",
+      "One-step machine polish (removes light swirl marks, minor scratches, oxidation)",
+      "Premium paint sealant application (60-90 day protection)",
+      "Engine bay surface wipe-down (light detail, not full degrease)",
+      "Rubber weather seal conditioning (doors, trunk, hood)",
+      "Plastic trim restoration (faded exterior trim rejuvenation)",
+      "Glass water spot treatment (exterior windshield and windows)",
+      "Detailed wheel face polish",
+      "Final hand buff and inspection under direct light",
+    ],
+  },
+  "Ceramic Coating": {
+    time: "6-10 hours (may require 2-day service)",
+    tierUp: "Full Showroom Elite Detail, PLUS:",
+    items: [
+      "Multi-step paint correction (machine compound + polish to remove swirls, scratches, and oxidation)",
+      "Surface prep with IPA wipe-down (removes all oils and residue before coating)",
+      "Professional-grade ceramic coating application (all painted surfaces)",
+      "Coating curing period (minimum 1-2 hours after application)",
+      "Hydrophobic protection lasting 1-2 years",
+      "UV protection to prevent paint fading and oxidation",
+      "Chemical resistance against bird droppings, tree sap, and road contaminants",
+      "Enhanced gloss and depth of paint color",
+      "Customer care instructions provided (48-hour no-wash curing window, recommended maintenance schedule)",
+    ],
+    note: "Final price depends on vehicle size and paint condition. Vehicles with heavy swirling, scratches, or oxidation may require additional paint correction time at an adjusted rate.",
+  },
+};
+
+const ADDON_SPECS = {
+  "Headlight Restoration": {
+    price: "$79-$99",
+    items: [
+      "Headlight lens sanding (progressive grit: 800 → 1500 → 2500)",
+      "Machine polish to restore clarity",
+      "UV-resistant clear coat application to prevent future yellowing",
+      "Both headlights included",
+    ],
+  },
+  "Paint Correction": {
+    price: "$249",
+    items: [
+      "Multi-step machine compound and polish",
+      "Removes moderate swirl marks, scratches, and water spots",
+      "Restores paint depth and gloss",
+      "Recommended before any ceramic coating application",
+    ],
+  },
+  "Pet Hair Removal": {
+    price: "$59",
+    items: [
+      "Specialized rubber and bristle tool extraction from all fabric surfaces",
+      "Seat, carpet, floor mat, and trunk deep pet hair removal",
+      "Lint roller and detail brush finishing pass",
+    ],
+  },
+  "Odor Elimination": {
+    price: "$99",
+    items: [
+      "Source identification and removal",
+      "Ozone treatment or enzyme-based odor neutralizer application",
+      "Full interior surface wipe-down with antibacterial solution",
+      "Vent system deodorizing treatment",
+      "Air freshener application",
+    ],
+  },
+  "Engine Bay Detail": {
+    price: "$89",
+    items: [
+      "Surface rinse and degreasing of engine bay",
+      "Plastic and rubber component dressing",
+      "Hose, cap, and reservoir wipe-down",
+      "Metal surface cleaning",
+      "Protective dressing application",
+    ],
+  },
+};
+
+const VEHICLE_SURCHARGES = [
+  "Sedan / Coupe / Hatchback: Base price as listed",
+  "SUV / Crossover / Minivan: +$25-$50 depending on package",
+  "Full-Size Truck / Large SUV (Suburban, Expedition, etc.): +$50-$100 depending on package",
+  "Excessive dirt, pet hair, or biohazard conditions: May require custom quote",
+];
+
 const DETAIL_SERVICES = [
   { icon: "🧽", name: "Interior Detail", desc: "Vacuum, shampoo, leather condition, dashboard, door panels" },
   { icon: "✨", name: "Exterior Wash & Wax", desc: "Hand wash, clay bar, wax, tire shine, trim restore" },
@@ -62,6 +194,7 @@ export default function DetailingSite() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [hoveredArea, setHoveredArea] = useState(null);
+  const [expandedPkg, setExpandedPkg] = useState({});
 
   const selectedPackage = selectedPkg !== null ? PACKAGES[selectedPkg] : null;
   const depositAmount = selectedPackage ? selectedPackage.deposit : 0;
@@ -453,30 +586,91 @@ export default function DetailingSite() {
       </section>
 
       {/* PRICING + ADD-ONS */}
-      <section style={{ padding: "50px 16px", background: "linear-gradient(180deg, #0B1120 0%, #131B2E 100%)" }}>
+      <section id="pricing" style={{ padding: "50px 16px", background: "linear-gradient(180deg, #0B1120 0%, #131B2E 100%)" }}>
         <div style={{ maxWidth: "600px", margin: "0 auto" }}>
           <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", textAlign: "center", marginBottom: "6px" }}>Transparent <span style={{ color: "#F472B6" }}>Pricing</span></h2>
           <p style={{ textAlign: "center", fontSize: "13px", color: "#94A3B8", marginBottom: "24px" }}>No hidden fees. No surprises. Just honest pricing.</p>
-          {PACKAGES.map((pkg, i) => (
-            <div key={i} className="price-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", marginBottom: "8px", borderRadius: "12px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)" }}>
-              <div>
-                <div style={{ fontSize: "15px", fontWeight: 600 }}>{pkg.name}</div>
-                <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>{pkg.note}</div>
+          {PACKAGES.map((pkg, i) => {
+            const specs = PACKAGE_SPECS[pkg.name];
+            const isExpanded = expandedPkg[pkg.name];
+            return (
+              <div key={i} style={{ marginBottom: "10px" }}>
+                <div className="price-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", borderRadius: isExpanded ? "12px 12px 0 0" : "12px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)" }}>
+                  <div>
+                    <div style={{ fontSize: "15px", fontWeight: 600 }}>{pkg.name}</div>
+                    <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>{pkg.note}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: "18px", fontWeight: 700, color: "#F472B6" }}>{pkg.price}</div>
+                    <div style={{ fontSize: "10px", color: "#22C55E", marginTop: "2px" }}>${pkg.deposit} deposit to book</div>
+                  </div>
+                </div>
+                {specs && (
+                  <>
+                    <button
+                      onClick={() => setExpandedPkg(prev => ({ ...prev, [pkg.name]: !prev[pkg.name] }))}
+                      style={{ width: "100%", padding: "10px 16px", border: "none", borderTop: "1px solid rgba(148,163,184,0.06)", background: "rgba(30,41,59,0.25)", color: "#F472B6", fontSize: "13px", fontWeight: 500, cursor: "pointer", fontFamily: "'Outfit', sans-serif", borderRadius: isExpanded ? "0" : "0 0 12px 12px", transition: "all 0.2s" }}
+                    >
+                      {isExpanded ? "Hide Details ▴" : "See What's Included ▾"}
+                    </button>
+                    <div style={{ maxHeight: isExpanded ? "1200px" : "0", overflow: "hidden", transition: "max-height 0.4s ease" }}>
+                      <div style={{ background: "rgba(244,114,182,0.04)", border: "1px solid rgba(244,114,182,0.12)", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "16px" }}>
+                        <div style={{ display: "inline-block", padding: "4px 12px", borderRadius: "12px", background: "rgba(125,211,252,0.1)", border: "1px solid rgba(125,211,252,0.2)", fontSize: "11px", color: "#7DD3FC", marginBottom: "12px" }}>
+                          Estimated Time: {specs.time}
+                        </div>
+                        {specs.tierUp && (
+                          <p style={{ fontSize: "13px", color: "#F472B6", fontStyle: "italic", margin: "0 0 8px" }}>{specs.tierUp}</p>
+                        )}
+                        {specs.items.map((item, j) => (
+                          <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "4px" }}>
+                            <span style={{ color: "#22C55E", fontSize: "12px", lineHeight: "1.8", flexShrink: 0 }}>✓</span>
+                            <span style={{ fontSize: "13px", color: "#CBD5E1", lineHeight: 1.8 }}>{item}</span>
+                          </div>
+                        ))}
+                        {specs.note && (
+                          <p style={{ fontSize: "11px", color: "#94A3B8", fontStyle: "italic", marginTop: "12px", marginBottom: 0, lineHeight: 1.5 }}>{specs.note}</p>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: "18px", fontWeight: 700, color: "#F472B6" }}>{pkg.price}</div>
-                <div style={{ fontSize: "10px", color: "#22C55E", marginTop: "2px" }}>${pkg.deposit} deposit to book</div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
 
-          <h3 style={{ fontSize: "16px", fontWeight: 600, marginTop: "24px", marginBottom: "12px", textAlign: "center", color: "#94A3B8" }}>Popular Add-Ons</h3>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", justifyContent: "center" }}>
-            {ADDONS.map((a, i) => (
-              <div key={i} style={{ padding: "8px 14px", borderRadius: "8px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)", fontSize: "12px" }}>
-                <span style={{ color: "#F8FAFC", fontWeight: 500 }}>{a.name}</span>
-                <span style={{ color: "#F472B6", fontWeight: 600, marginLeft: "6px" }}>{a.price}</span>
+          <h3 style={{ fontSize: "18px", fontWeight: 600, marginTop: "32px", marginBottom: "16px", textAlign: "center", color: "#F8FAFC" }}>Add-On Services</h3>
+          {Object.entries(ADDON_SPECS).map(([name, spec], i) => {
+            const isExpanded = expandedPkg["addon_" + name];
+            return (
+              <div key={i} style={{ marginBottom: "8px" }}>
+                <div className="price-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", borderRadius: isExpanded ? "12px 12px 0 0" : "12px", background: "rgba(30,41,59,0.35)", border: "1px solid rgba(148,163,184,0.08)", fontSize: "14px" }}>
+                  <span style={{ fontWeight: 500 }}>{name}</span>
+                  <span style={{ color: "#F472B6", fontWeight: 600 }}>{spec.price}</span>
+                </div>
+                <button
+                  onClick={() => setExpandedPkg(prev => ({ ...prev, ["addon_" + name]: !prev["addon_" + name] }))}
+                  style={{ width: "100%", padding: "8px 16px", border: "none", borderTop: "1px solid rgba(148,163,184,0.06)", background: "rgba(30,41,59,0.2)", color: "#F472B6", fontSize: "12px", fontWeight: 500, cursor: "pointer", fontFamily: "'Outfit', sans-serif", borderRadius: isExpanded ? "0" : "0 0 12px 12px", transition: "all 0.2s" }}
+                >
+                  {isExpanded ? "Hide Details ▴" : "See What's Included ▾"}
+                </button>
+                <div style={{ maxHeight: isExpanded ? "600px" : "0", overflow: "hidden", transition: "max-height 0.35s ease" }}>
+                  <div style={{ background: "rgba(244,114,182,0.04)", border: "1px solid rgba(244,114,182,0.12)", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
+                    {spec.items.map((item, j) => (
+                      <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "3px" }}>
+                        <span style={{ color: "#22C55E", fontSize: "12px", lineHeight: "1.8", flexShrink: 0 }}>✓</span>
+                        <span style={{ fontSize: "13px", color: "#CBD5E1", lineHeight: 1.8 }}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+            );
+          })}
+
+          <div style={{ marginTop: "24px", padding: "16px", borderRadius: "10px", background: "rgba(30,41,59,0.3)", border: "1px solid rgba(148,163,184,0.08)" }}>
+            <h4 style={{ fontSize: "13px", fontWeight: 600, color: "#94A3B8", marginBottom: "10px", marginTop: 0 }}>Vehicle Size Surcharges</h4>
+            {VEHICLE_SURCHARGES.map((line, i) => (
+              <div key={i} style={{ fontSize: "12px", color: "#94A3B8", lineHeight: 1.8 }}>{line}</div>
             ))}
           </div>
 
