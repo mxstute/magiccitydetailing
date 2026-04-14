@@ -4,15 +4,15 @@ import AddressAutocomplete from "./AddressAutocomplete";
 /*
   MAGIC CITY DETAILING — v3
   Layout: Hero → Booking (section 2) → Pricing → Services → Areas → Footer
-  Deposit: $25 / $50 / $75
+  Deposit: 25% under $400, 50% over $400
   Phone: (305) 306-8078
 */
 
 const PACKAGES = [
-  { name: "Interior Detail", price: "$249", deposit: 25, note: "Deep clean, condition, protect", tag: null },
-  { name: "Full Detail (Int + Ext)", price: "$349", deposit: 50, note: "Complete interior + exterior", tag: "Most Popular" },
-  { name: "Showroom Elite", price: "$599", deposit: 75, note: "The works — premium package", tag: "Premium" },
-  { name: "Ceramic Coating", price: "$999+", deposit: 75, note: "Long-term paint protection", tag: null },
+  { name: "Interior Detail", price: "$249", deposit: 65, note: "Deep clean, condition, protect", tag: null },
+  { name: "Full Detail (Int + Ext)", price: "$349", deposit: 90, note: "Complete interior + exterior", tag: "Most Popular" },
+  { name: "Showroom Elite", price: "$599", deposit: 300, note: "The works — premium package", tag: "Premium" },
+  { name: "Ceramic Coating", price: "$999+", deposit: 500, note: "Long-term paint protection", tag: null },
 ];
 
 const ADDONS = [
