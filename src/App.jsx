@@ -9,10 +9,10 @@ import AddressAutocomplete from "./AddressAutocomplete";
 */
 
 const PACKAGES = [
-  { name: "Interior Detail", price: "$199", deposit: 25, note: "Deep clean, condition, protect", tag: null },
-  { name: "Full Detail (Int + Ext)", price: "$299", deposit: 50, note: "Complete interior + exterior", tag: "Most Popular" },
-  { name: "Showroom Elite", price: "$499", deposit: 75, note: "The works — premium package", tag: "Premium" },
-  { name: "Ceramic Coating", price: "$799+", deposit: 75, note: "Long-term paint protection", tag: null },
+  { name: "Interior Detail", price: "$249", deposit: 25, note: "Deep clean, condition, protect", tag: null },
+  { name: "Full Detail (Int + Ext)", price: "$349", deposit: 50, note: "Complete interior + exterior", tag: "Most Popular" },
+  { name: "Showroom Elite", price: "$599", deposit: 75, note: "The works — premium package", tag: "Premium" },
+  { name: "Ceramic Coating", price: "$999+", deposit: 75, note: "Long-term paint protection", tag: null },
 ];
 
 const ADDONS = [
