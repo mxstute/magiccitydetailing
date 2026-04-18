@@ -195,6 +195,11 @@ export default function DetailingSite() {
   const [address, setAddress] = useState("");
   const [hoveredArea, setHoveredArea] = useState(null);
   const [expandedPkg, setExpandedPkg] = useState({});
+  const [vehicleYear, setVehicleYear] = useState("");
+  const [vehicleMake, setVehicleMake] = useState("");
+  const [vehicleModel, setVehicleModel] = useState("");
+  const [vehicleSize, setVehicleSize] = useState("");
+  const [vehicleColor, setVehicleColor] = useState("");
 
   const selectedPackage = selectedPkg !== null ? PACKAGES[selectedPkg] : null;
   const depositAmount = selectedPackage ? selectedPackage.deposit : 0;
@@ -226,7 +231,7 @@ export default function DetailingSite() {
   }, []);
 
   const handleBookingSubmit = async () => {
-    if (!selectedPackage || !name || !phone || !email || !address || !bookingDate || !bookingTime) {
+    if (!selectedPackage || !name || !phone || !email || !address || !bookingDate || !bookingTime || !vehicleYear || !vehicleMake || !vehicleModel || !vehicleSize) {
       alert("Please fill in all fields before submitting.");
       return;
     }
@@ -240,6 +245,8 @@ export default function DetailingSite() {
         package: selectedPackage.name,
         price: selectedPackage.price,
         deposit: depositAmount,
+        vehicleYear, vehicleMake, vehicleModel, vehicleSize, vehicleColor,
+        vehicle: vehicleYear + " " + vehicleMake + " " + vehicleModel + " (" + vehicleColor + ") - " + vehicleSize,
       };
       localStorage.setItem("pendingBooking", JSON.stringify(bookingData));
 
@@ -256,6 +263,7 @@ export default function DetailingSite() {
           date: bookingDate,
           time: bookingTime,
           address,
+          vehicle: vehicleYear + " " + vehicleMake + " " + vehicleModel + " (" + vehicleColor + ") - " + vehicleSize,
         }),
       });
       const data = await res.json();
@@ -495,6 +503,61 @@ export default function DetailingSite() {
                 </button>
               ))}
 
+              {/* Vehicle Information */}
+              <div style={{ fontSize: "11px", color: "#94A3B8", letterSpacing: "0.5px", textTransform: "uppercase", marginTop: "12px", marginBottom: "10px", fontWeight: 500 }}>Vehicle Information</div>
+
+              <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                <div style={{ flex: "1 1 33%", minWidth: 0 }}>
+                  <label style={labelStyle}>Vehicle Year</label>
+                  <select value={vehicleYear} onChange={e => setVehicleYear(e.target.value)} style={{ ...inputStyle, height: "46px", WebkitAppearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394A3B8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                    <option value="">Select year</option>
+                    {[2026,2025,2024,2023,2022,2021,2020,2019,2018,2017,2016,2015,2014,2013,2012,2011,2010].map(y => <option key={y} value={y}>{y}</option>)}
+                    <option value="2009 or older">2009 or older</option>
+                  </select>
+                </div>
+                <div style={{ flex: "1 1 67%", minWidth: 0 }}>
+                  <label style={labelStyle}>Vehicle Make</label>
+                  <select value={vehicleMake} onChange={e => setVehicleMake(e.target.value)} style={{ ...inputStyle, height: "46px", WebkitAppearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394A3B8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
+                    <option value="">Select make</option>
+                    {["Acura","Audi","BMW","Buick","Cadillac","Chevrolet","Chrysler","Dodge","Ferrari","Fiat","Ford","Genesis","GMC","Honda","Hyundai","Infiniti","Jaguar","Jeep","Kia","Lamborghini","Land Rover","Lexus","Lincoln","Maserati","Mazda","McLaren","Mercedes-Benz","Mini","Mitsubishi","Nissan","Porsche","Ram","Rolls-Royce","Subaru","Tesla","Toyota","Volkswagen","Volvo","Other"].map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
+                <div style={{ flex: "1 1 50%", minWidth: 0 }}>
+                  <label style={labelStyle}>Vehicle Model</label>
+                  <input type="text" value={vehicleModel} onChange={e => setVehicleModel(e.target.value)} placeholder="e.g. Civic, Model 3, X5" style={{ ...inputStyle }} />
+                </div>
+                <div style={{ flex: "1 1 50%", minWidth: 0 }}>
+                  <label style={labelStyle}>Vehicle Color</label>
+                  <input type="text" value={vehicleColor} onChange={e => setVehicleColor(e.target.value)} placeholder="e.g. Black, White, Silver" style={{ ...inputStyle }} />
+                </div>
+              </div>
+
+              <label style={labelStyle}>Vehicle Size</label>
+              <div style={{ display: "flex", gap: "6px", marginBottom: "14px" }}>
+                {[
+                  { label: "Sedan / Coupe", surcharge: null },
+                  { label: "SUV / Crossover", surcharge: "+$25\u2013$50" },
+                  { label: "Truck / Large SUV", surcharge: "+$50\u2013$100" },
+                ].map(s => (
+                  <button key={s.label} onClick={() => setVehicleSize(s.label)}
+                    style={{
+                      flex: 1, padding: "10px 6px", borderRadius: "10px",
+                      border: vehicleSize === s.label ? "1px solid #F472B6" : "1px solid rgba(148,163,184,0.15)",
+                      background: vehicleSize === s.label ? "rgba(244,114,182,0.08)" : "transparent",
+                      color: vehicleSize === s.label ? "#F472B6" : "#94A3B8",
+                      fontSize: "11px", fontWeight: vehicleSize === s.label ? 600 : 400,
+                      cursor: "pointer", fontFamily: "inherit", textAlign: "center",
+                    }}
+                  >
+                    <div>{s.label}</div>
+                    {s.surcharge && <div style={{ fontSize: "10px", color: "#FBBF24", marginTop: "3px" }}>{s.surcharge}</div>}
+                  </button>
+                ))}
+              </div>
+
               <div style={{ display: "flex", gap: "10px", marginTop: "8px", marginBottom: "14px" }}>
                 <div style={{ flex: "1 1 0", minWidth: 0 }}>
                   <label style={labelStyle}>Date</label>
@@ -539,7 +602,7 @@ export default function DetailingSite() {
                 </div>
               )}
 
-              <button style={{ width: "100%", padding: "15px", borderRadius: "12px", border: "none", background: selectedPackage && !submitted ? "linear-gradient(135deg, #F472B6, #7DD3FC)" : "rgba(148,163,184,0.2)", color: selectedPackage ? "#0B1120" : "#94A3B8", fontSize: "15px", fontWeight: 700, cursor: selectedPackage ? "pointer" : "default", fontFamily: "inherit", opacity: selectedPackage && !submitted ? 1 : 0.5 }} className="cta-btn" onClick={handleBookingSubmit} disabled={submitting || submitted || !selectedPackage}>
+              <button style={{ width: "100%", padding: "15px", borderRadius: "12px", border: "none", background: selectedPackage && !submitted ? "linear-gradient(135deg, #F472B6, #7DD3FC)" : "rgba(148,163,184,0.2)", color: selectedPackage ? "#0B1120" : "#94A3B8", fontSize: "15px", fontWeight: 700, cursor: selectedPackage ? "pointer" : "default", fontFamily: "inherit", opacity: selectedPackage && !submitted ? 1 : 0.5 }} className="cta-btn" onClick={handleBookingSubmit} disabled={submitting || submitted || !selectedPackage || !vehicleYear || !vehicleMake || !vehicleModel || !vehicleSize}>
                 {submitting ? "Submitting..." : submitted ? "Booking Submitted! ✅" : selectedPackage ? `Confirm Booking — $${depositAmount} Deposit` : "Select a package to continue"}
               </button>
               {submitted && (
