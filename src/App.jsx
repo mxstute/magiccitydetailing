@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import AddressAutocomplete from "./AddressAutocomplete";
 
+function trackPhoneClick() { if (typeof gtag === "function") gtag("event", "conversion", { send_to: "AW-18078412608/XZo5CJzT3OccEMDeuqxD" }); }
+
 /*
   MAGIC CITY DETAILING — v3
   Layout: Hero → Booking (section 2) → Pricing → Services → Areas → Footer
@@ -224,7 +226,7 @@ export default function DetailingSite() {
       }
       setSubmitted(true);
       // Fire Google Ads conversion
-      if (typeof gtag === "function") gtag("event", "conversion", {"send_to": "AW-18078412608/S_40CIGMrZkcEMDeuqxD"});
+      if (typeof gtag === "function") { let bookingValue = 0; try { bookingValue = Number(JSON.parse(saved || "{}").deposit) || 0; } catch (err) {} gtag("event", "conversion", { send_to: "AW-18078412608/S_40CIGMrZkcEMDeuqxD", value: bookingValue, currency: "USD" }); }
       // Clean URL
       window.history.replaceState({}, "", window.location.pathname);
     }
@@ -290,6 +292,7 @@ export default function DetailingSite() {
         headers: { Accept: "application/json" },
       });
       if (res.ok) {
+        if (typeof gtag === "function") gtag("event", "conversion", { send_to: "AW-18078412608/MT3wCJnT3OccEMDeuqxD" });
         alert("Quote request sent! We'll get back to you within 1 hour during business hours.");
         form.reset();
       } else {
@@ -414,7 +417,7 @@ export default function DetailingSite() {
           ))}
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <a href="tel:3053068078" className="phone-btn" style={{
+          <a onClick={trackPhoneClick} href="tel:3053068078" className="phone-btn" style={{
             padding: "8px 14px", borderRadius: "20px",
             background: "linear-gradient(135deg, #F472B6, #E04DA0)",
             color: "#fff", fontSize: "12px", fontWeight: 600, textDecoration: "none",
@@ -641,7 +644,7 @@ export default function DetailingSite() {
               <p style={{ fontSize: "13px", color: "#94A3B8", marginBottom: "6px" }}>Speak with a team member right now</p>
               <div style={{ display: "inline-block", padding: "6px 14px", borderRadius: "8px", marginBottom: "20px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", fontSize: "12px", color: "#22C55E", fontWeight: 500 }}>No deposit required — book over the phone for free</div>
               <br />
-              <a href="tel:3053068078" style={{ display: "inline-block", padding: "14px 32px", borderRadius: "12px", background: "linear-gradient(135deg, #F472B6, #E04DA0)", color: "#fff", fontSize: "18px", fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>(305) 306-8078</a>
+              <a onClick={trackPhoneClick} href="tel:3053068078" style={{ display: "inline-block", padding: "14px 32px", borderRadius: "12px", background: "linear-gradient(135deg, #F472B6, #E04DA0)", color: "#fff", fontSize: "18px", fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>(305) 306-8078</a>
               <p style={{ fontSize: "12px", color: "#94A3B8", marginTop: "16px" }}>Available 7 AM – 9 PM, 7 days a week</p>
             </div>
           )}
@@ -782,7 +785,7 @@ export default function DetailingSite() {
         <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 700, background: "linear-gradient(135deg, #F472B6, #7DD3FC)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>Magic City Detailing</div>
         <p style={{ fontSize: "12px", color: "#94A3B8", marginBottom: "12px" }}>Miami-Dade • Broward • Palm Beach</p>
         <p style={{ fontSize: "12px", color: "#F472B6", fontWeight: 600, letterSpacing: "1px", marginBottom: "8px" }}>Contact Us:</p>
-        <a href="tel:3053068078" style={{ fontSize: "14px", color: "#7DD3FC", textDecoration: "none", fontWeight: 600 }}>(305) 306-8078</a>
+        <a onClick={trackPhoneClick} href="tel:3053068078" style={{ fontSize: "14px", color: "#7DD3FC", textDecoration: "none", fontWeight: 600 }}>(305) 306-8078</a>
         <br />
         <a href="mailto:info@magiccityservicesmiami.com" style={{ fontSize: "13px", color: "#F472B6", textDecoration: "none", fontWeight: 500, marginTop: "6px", display: "inline-block" }}>info@magiccityservicesmiami.com</a>
         <p style={{ fontSize: "10px", color: "rgba(148,163,184,0.4)", marginTop: "16px" }}>© 2026 Magic City Services LLC. All rights reserved.</p>
