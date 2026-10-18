@@ -1,5 +1,13 @@
 import Stripe from 'stripe';
 
+// Deposit amounts are set here on the server so the browser can't change them.
+const DEPOSITS = {
+  'Interior Detail': 65,
+  'Full Detail (Int + Ext)': 90,
+  'Showroom Elite': 300,
+  'Ceramic Coating': 500,
+};
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -15,10 +23,14 @@ export default async function handler(req, res) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   try {
-    const { packageName, price, customerName, customerEmail, customerPhone, date, time, address } = req.body;
+    const { packageName, customerName, customerEmail, customerPhone, date, time, address } = req.body;
 
-    if (!packageName || !price || !customerEmail) {
+    if (!packageName || !customerEmail) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const deposit = DEPOSITS[packageName];
+    if (!deposit) {
+      return res.status(400).json({ error: 'Unknown package' });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -32,7 +44,7 @@ export default async function handler(req, res) {
             name: `Magic City Detailing — ${packageName}`,
             description: `Deposit for ${packageName}. Date: ${date || 'TBD'} at ${time || 'TBD'}.`,
           },
-          unit_amount: Math.round(price * 100),
+          unit_amount: Math.round(deposit * 100),
         },
         quantity: 1,
       }],

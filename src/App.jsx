@@ -18,10 +18,11 @@ const PACKAGES = [
 ];
 
 const ADDONS = [
-  { name: "Paint Correction", price: "$249+" },
-  { name: "Headlight Restoration", price: "$79+" },
+  { name: "1-Step Gloss Enhancement", price: "$249" },
+  { name: "Paint Correction (2-Step)", price: "$549+" },
+  { name: "Headlight Restoration", price: "$89" },
   { name: "Pet Hair Removal", price: "$59+" },
-  { name: "Odor Elimination", price: "$99+" },
+  { name: "Odor Elimination", price: "$79" },
   { name: "Engine Bay Detail", price: "$89+" },
 ];
 
@@ -103,7 +104,7 @@ const PACKAGE_SPECS = {
 
 const ADDON_SPECS = {
   "Headlight Restoration": {
-    price: "$79-$99",
+    price: "$89",
     items: [
       "Headlight lens sanding (progressive grit: 800 → 1500 → 2500)",
       "Machine polish to restore clarity",
@@ -111,10 +112,19 @@ const ADDON_SPECS = {
       "Both headlights included",
     ],
   },
-  "Paint Correction": {
+  "1-Step Gloss Enhancement": {
     price: "$249",
     items: [
-      "Multi-step machine compound and polish",
+      "Single-stage machine polish",
+      "Removes light swirl marks and haze",
+      "Restores gloss and depth",
+      "Great before a sealant or for a quick refresh",
+    ],
+  },
+  "Paint Correction (2-Step)": {
+    price: "$549+",
+    items: [
+      "Two-stage machine compound and polish",
       "Removes moderate swirl marks, scratches, and water spots",
       "Restores paint depth and gloss",
       "Recommended before any ceramic coating application",
@@ -129,7 +139,7 @@ const ADDON_SPECS = {
     ],
   },
   "Odor Elimination": {
-    price: "$99",
+    price: "$79",
     items: [
       "Source identification and removal",
       "Ozone treatment or enzyme-based odor neutralizer application",
@@ -152,8 +162,8 @@ const ADDON_SPECS = {
 
 const VEHICLE_SURCHARGES = [
   "Sedan / Coupe / Hatchback: Base price as listed",
-  "SUV / Crossover / Minivan: +$25-$50 depending on package",
-  "Full-Size Truck / Large SUV (Suburban, Expedition, etc.): +$50-$100 depending on package",
+  "SUV / Crossover / Minivan: +$20",
+  "Full-Size Truck / Large SUV (Suburban, Expedition, etc.): +$40",
   "Excessive dirt, pet hair, or biohazard conditions: May require custom quote",
 ];
 
@@ -542,8 +552,8 @@ export default function DetailingSite() {
               <div style={{ display: "flex", gap: "6px", marginBottom: "14px" }}>
                 {[
                   { label: "Sedan / Coupe", surcharge: null },
-                  { label: "SUV / Crossover", surcharge: "+$25\u2013$50" },
-                  { label: "Truck / Large SUV", surcharge: "+$50\u2013$100" },
+                  { label: "SUV / Crossover", surcharge: "+$20" },
+                  { label: "Truck / Large SUV", surcharge: "+$40" },
                 ].map(s => (
                   <button key={s.label} onClick={() => setVehicleSize(s.label)}
                     style={{
@@ -642,7 +652,7 @@ export default function DetailingSite() {
               <div style={{ fontSize: "48px", marginBottom: "16px" }}>📞</div>
               <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", margin: "0 0 8px" }}>Call Us Directly</h3>
               <p style={{ fontSize: "13px", color: "#94A3B8", marginBottom: "6px" }}>Speak with a team member right now</p>
-              <div style={{ display: "inline-block", padding: "6px 14px", borderRadius: "8px", marginBottom: "20px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", fontSize: "12px", color: "#22C55E", fontWeight: 500 }}>No deposit required — book over the phone for free</div>
+              <div style={{ display: "inline-block", padding: "6px 14px", borderRadius: "8px", marginBottom: "20px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", fontSize: "12px", color: "#22C55E", fontWeight: 500 }}>Free quotes by phone — call anytime, 24/7</div>
               <br />
               <a onClick={trackPhoneClick} href="tel:3053068078" style={{ display: "inline-block", padding: "14px 32px", borderRadius: "12px", background: "linear-gradient(135deg, #F472B6, #E04DA0)", color: "#fff", fontSize: "18px", fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>(305) 306-8078</a>
               <p style={{ fontSize: "12px", color: "#94A3B8", marginTop: "16px" }}>Available 7 AM – 9 PM, 7 days a week</p>
