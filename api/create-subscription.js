@@ -96,13 +96,13 @@ export default async function handler(req, res) {
       ],
       subscription_data: {
         trial_period_days: TRIAL_DAYS,
-        description: `${plan.label}. 6-month minimum. Started with a Full Detail.`,
+        description: `${plan.label}. Cancel anytime. Started with a Full Detail.`,
         metadata: meta,
       },
       metadata: meta,
       custom_text: {
         submit: {
-          message: `Today you pay for your first visit, a Full Detail. Your ${plan.label} membership starts billing ${TRIAL_DAYS} days from now. 6-month minimum. Members get 15% off other services and priority scheduling.`,
+          message: `Today you pay for your first visit, a Full Detail. Your ${plan.label} membership starts billing ${TRIAL_DAYS} days from now. Cancel anytime. Members get 15% off other services and priority scheduling.`,
         },
       },
       success_url: `${origin}/?member=success`,

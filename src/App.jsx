@@ -268,7 +268,7 @@ export default function DetailingSite() {
               </div>
             ))}
           </div>
-          <p className="member-fine">Membership starts with a Full Detail (your first visit, paid at signup) and runs for at least 6 months. Monthly billing starts 30 days later. <button type="button" className="link" onClick={askClub}>Have a question first? Ask us.</button></p>
+          <p className="member-fine">Membership starts with a Full Detail (your first visit, paid at signup) Monthly billing starts 30 days later. Cancel anytime. <button type="button" className="link" onClick={askClub}>Have a question first? Ask us.</button></p>
           <MemberSignup kind="club" plans={CLUB} plan={clubPlan} setPlan={setClubPlan} phoneDisplay={PHONE_DISPLAY} siteName="magiccitydetailingmiami.com" />
         </div>
       </section>
