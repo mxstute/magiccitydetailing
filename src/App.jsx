@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Page, Promo, Nav, Hero, Tiles, How, Booking, Pricing, PriceList, Areas, Band, Footer, goTo, ArrowIcon } from "./SiteKit";
+import { Page, Promo, Nav, Hero, Tiles, How, Booking, Pricing, PriceList, Areas, Band, Footer, MemberSignup, goTo, ArrowIcon } from "./SiteKit";
 
 /*
   MAGIC CITY DETAILING — v4 (Oct 2026 redesign)
@@ -184,8 +184,8 @@ const TILES = [
 ];
 
 const CLUB = [
-  { name: "Monthly", price: "$129", visits: "One maintenance detail every month", featured: false },
-  { name: "Every two weeks", price: "$229", visits: "A maintenance detail every other week", featured: true },
+  { id: "club_monthly", name: "Monthly", label: "Detail Club, monthly", monthly: 129, price: "$129", visits: "One maintenance detail every month", featured: false },
+  { id: "club_biweekly", name: "Every two weeks", label: "Detail Club, every two weeks", monthly: 229, price: "$229", visits: "A maintenance detail every other week", featured: true },
 ];
 
 export default function DetailingSite() {
@@ -193,12 +193,14 @@ export default function DetailingSite() {
   const [tab, setTab] = useState("book");
   const [openKey, setOpenKey] = useState(null);
   const [quoteValue, setQuoteValue] = useState(null);
+  const [clubPlan, setClubPlan] = useState("club_biweekly");
 
   const pick = (t) => {
     if (t.jump) { goTo(t.jump); return; }
     setSelectedPkg(t.pkg); setTab("book"); goTo("booking");
   };
   const askClub = () => { setQuoteValue("Detail Club membership"); setTab("quote"); goTo("booking"); };
+  const joinClub = (id) => { setClubPlan(id); goTo("signup"); };
   const addons = ADDONS.map(a => ({ name: a.name, price: a.price, note: "" }));
 
   return (
@@ -259,14 +261,15 @@ export default function DetailingSite() {
                   <li>15% off any other service</li>
                   <li>Priority scheduling</li>
                 </ul>
-                <button className={"btn " + (c.featured ? "btn-pink" : "btn-outline")} onClick={askClub}>
-                  <span className="btn-label">Ask about joining</span>
+                <button className={"btn " + (c.featured ? "btn-pink" : "btn-outline")} onClick={() => joinClub(c.id)}>
+                  <span className="btn-label">Join {c.name.toLowerCase()}</span>
                   <span className="btn-icon"><ArrowIcon /></span>
                 </button>
               </div>
             ))}
           </div>
-          <p className="member-fine">Membership starts with a Full Detail and runs for at least 6 months.</p>
+          <p className="member-fine">Membership starts with a Full Detail (your first visit, paid at signup) and runs for at least 6 months. Monthly billing starts 30 days later. <button type="button" className="link" onClick={askClub}>Have a question first? Ask us.</button></p>
+          <MemberSignup kind="club" plans={CLUB} plan={clubPlan} setPlan={setClubPlan} phoneDisplay={PHONE_DISPLAY} siteName="magiccitydetailingmiami.com" />
         </div>
       </section>
 
