@@ -1,13 +1,10 @@
-import { useState, useEffect } from "react";
-import AddressAutocomplete from "./AddressAutocomplete";
-
-function trackPhoneClick() { if (typeof gtag === "function") gtag("event", "conversion", { send_to: "AW-18078412608/XZo5CJzT3OccEMDeuqxD" }); }
+import { useState } from "react";
+import { Page, Promo, Nav, Hero, Tiles, How, Booking, Pricing, PriceList, Areas, Band, Footer, goTo, ArrowIcon } from "./SiteKit";
 
 /*
-  MAGIC CITY DETAILING — v3
-  Layout: Hero → Booking (section 2) → Pricing → Services → Areas → Footer
-  Deposit: 25% under $400, 50% over $400
-  Phone: (305) 306-8078
+  MAGIC CITY DETAILING — v4 (Oct 2026 redesign)
+  Layout and booking live in SiteKit.jsx (shared with the other Magic City sites).
+  Deposit amounts are enforced server-side in api/create-checkout.js.
 */
 
 const PACKAGES = [
@@ -176,633 +173,119 @@ const DETAIL_SERVICES = [
   { icon: "🚗", name: "We Come to You", desc: "Full mobile setup — we detail at your home or office" },
 ];
 
-const AREAS = [
-  "Miami Beach", "Brickell", "Coral Gables", "Kendall", "Doral", "Hialeah",
-  "Coconut Grove", "Aventura", "Hollywood", "Fort Lauderdale", "Pembroke Pines",
-  "Weston", "Boca Raton", "West Palm Beach", "Homestead", "Miami Gardens",
+const PHONE = "3053068078";
+const PHONE_DISPLAY = "(305) 306-8078";
+
+const TILES = [
+  { name: "Full detail", from: "From $349", pkg: 1, img: "/images/v4/hand-wash", cta: "Book a full detail", blurb: "Hand wash, clay, wax and a complete interior clean, done in your driveway." },
+  { name: "Interior detail", from: "From $249", pkg: 0, img: "/images/v4/interior-detail", cta: "Book an interior", blurb: "Seats, carpets, leather, vents and every surface deep cleaned and protected." },
+  { name: "Ceramic & paint correction", from: "From $999", pkg: 3, img: "/images/v4/mobile-detailing-polish", cta: "Book ceramic coating", blurb: "Machine polish to remove swirls, then ceramic protection that lasts years." },
+  { name: "Headlights & add-ons", from: "From $59", jump: "addons", img: "/images/v4/headlight-restoration", cta: "See add-ons", blurb: "Headlight restoration, pet hair, odor removal and engine bay cleaning." },
 ];
 
-const TIMES = [];
-for (let h = 7; h <= 21; h++) {
-  for (let m = 0; m < 60; m += 15) {
-    if (h === 21 && m > 0) break;
-    const hour12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
-    const ampm = h >= 12 ? "PM" : "AM";
-    const label = `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
-    let tag = "";
-    if (h < 8) tag = " (Early Bird +$25)";
-    else if (h >= 18) tag = " (After Hours +$25)";
-    TIMES.push({ value: label, label: label + tag });
-  }
-}
+const CLUB = [
+  { name: "Monthly", price: "$129", visits: "One maintenance detail every month", featured: false },
+  { name: "Every two weeks", price: "$229", visits: "A maintenance detail every other week", featured: true },
+];
 
 export default function DetailingSite() {
-  const [bookingTab, setBookingTab] = useState("book");
   const [selectedPkg, setSelectedPkg] = useState(null);
-  const [bookingDate, setBookingDate] = useState("");
-  const [bookingTime, setBookingTime] = useState("");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [address, setAddress] = useState("");
-  const [hoveredArea, setHoveredArea] = useState(null);
-  const [expandedPkg, setExpandedPkg] = useState({});
-  const [vehicleYear, setVehicleYear] = useState("");
-  const [vehicleMake, setVehicleMake] = useState("");
-  const [vehicleModel, setVehicleModel] = useState("");
-  const [vehicleSize, setVehicleSize] = useState("");
-  const [vehicleColor, setVehicleColor] = useState("");
+  const [tab, setTab] = useState("book");
+  const [openKey, setOpenKey] = useState(null);
+  const [quoteValue, setQuoteValue] = useState(null);
 
-  const selectedPackage = selectedPkg !== null ? PACKAGES[selectedPkg] : null;
-  const depositAmount = selectedPackage ? selectedPackage.deposit : 0;
-
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  // Handle Stripe redirect back
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("booking") === "success") {
-      // Submit to Formspree with saved data
-      const saved = localStorage.getItem("pendingBooking");
-      if (saved) {
-        const data = JSON.parse(saved);
-        fetch("https://formspree.io/f/xqeyrgno", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...data, deposit: "$" + data.deposit, payment: "Stripe deposit paid" }),
-        }).catch(() => {});
-        localStorage.removeItem("pendingBooking");
-      }
-      setSubmitted(true);
-      // Fire Google Ads conversion
-      if (typeof gtag === "function") { let bookingValue = 0; try { bookingValue = Number(JSON.parse(saved || "{}").deposit) || 0; } catch (err) {} gtag("event", "conversion", { send_to: "AW-18078412608/S_40CIGMrZkcEMDeuqxD", value: bookingValue, currency: "USD" }); }
-      // Clean URL
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-  }, []);
-
-  const handleBookingSubmit = async () => {
-    if (!selectedPackage || !name || !phone || !email || !address || !bookingDate || !bookingTime || !vehicleYear || !vehicleMake || !vehicleModel || !vehicleSize) {
-      alert("Please fill in all fields before submitting.");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      // Save form data to localStorage before Stripe redirect
-      const bookingData = {
-        name, phone, email, address,
-        date: bookingDate, time: bookingTime,
-        service: "Mobile Detailing",
-        package: selectedPackage.name,
-        price: selectedPackage.price,
-        deposit: depositAmount,
-        vehicleYear, vehicleMake, vehicleModel, vehicleSize, vehicleColor,
-        vehicle: vehicleYear + " " + vehicleMake + " " + vehicleModel + " (" + vehicleColor + ") - " + vehicleSize,
-      };
-      localStorage.setItem("pendingBooking", JSON.stringify(bookingData));
-
-      // Create Stripe Checkout session
-      const res = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          packageName: selectedPackage.name,
-          price: depositAmount,
-          customerName: name,
-          customerEmail: email,
-          customerPhone: phone,
-          date: bookingDate,
-          time: bookingTime,
-          address,
-          vehicle: vehicleYear + " " + vehicleMake + " " + vehicleModel + " (" + vehicleColor + ") - " + vehicleSize,
-        }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error(data.error || "Failed to create checkout session");
-      }
-    } catch (e) {
-      console.error("Checkout error:", e);
-      alert("Something went wrong creating your checkout. Please try again or call us.");
-      setSubmitting(false);
-    }
+  const pick = (t) => {
+    if (t.jump) { goTo(t.jump); return; }
+    setSelectedPkg(t.pkg); setTab("book"); goTo("booking");
   };
-
-  const handleQuoteSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const data = new FormData(form);
-    try {
-      const res = await fetch("https://formspree.io/f/xyknrbor", {
-        method: "POST",
-        body: data,
-        headers: { Accept: "application/json" },
-      });
-      if (res.ok) {
-        if (typeof gtag === "function") gtag("event", "conversion", { send_to: "AW-18078412608/MT3wCJnT3OccEMDeuqxD" });
-        alert("Quote request sent! We'll get back to you within 1 hour during business hours.");
-        form.reset();
-      } else {
-        alert("Something went wrong. Please call us at (305) 570-3041.");
-      }
-    } catch (err) {
-      alert("Something went wrong. Please call us at (305) 570-3041.");
-    }
-  };
+  const askClub = () => { setQuoteValue("Detail Club membership"); setTab("quote"); goTo("booking"); };
+  const addons = ADDONS.map(a => ({ name: a.name, price: a.price, note: "" }));
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0B1120", color: "#F8FAFC", fontFamily: "'Outfit', sans-serif", overflowX: "hidden" }}>
-            <style>{`
-        *, *::before, *::after { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        html, body, #root { margin: 0; padding: 0; background: #0B1120; min-height: 100vh; }
-        input, textarea, select, button { max-width: 100%; box-sizing: border-box; }
-        section[id], footer[id] { scroll-margin-top: 60px; }
-        /* Mobile nav fix */
-        .nav-links { display: flex; gap: 20px; }
-        @media (max-width: 640px) {
-          .nav-links { display: none !important; }
-          nav { grid-template-columns: 1fr auto !important; padding: 12px 16px !important; }
-          .nav-logo-text { font-size: 14px !important; }
-          .nav-sub-text { font-size: 9px !important; letter-spacing: 2px !important; }
-          .phone-btn { padding: 8px 12px !important; font-size: 11px !important; }
-        }
+    <Page>
+      <Promo />
+      <Nav sub="Mobile Detailing" phone={PHONE} phoneDisplay={PHONE_DISPLAY}
+        links={[{ id: "services", label: "Services" }, { id: "pricing", label: "Pricing" }, { id: "club", label: "Detail Club" }, { id: "areas", label: "Areas" }]} />
 
+      <Hero
+        img="/images/v4/hero-foam-night.webp"
+        mobileImg="/images/v4/hero-foam-night-mobile.webp"
+        alt="Mobile detailer foaming a white sports car in a Miami driveway at night"
+        where="We come to you across Miami-Dade, Broward and Palm Beach"
+        title="Mobile car detailing at your home or office"
+        copy="Interior and full details, paint correction and ceramic coating, done in your driveway. Pick a package, pay a small deposit to hold your time, and we bring everything."
+        bookLabel="Book a detail"
+        phone={PHONE} phoneDisplay={PHONE_DISPLAY}
+        facts={[["Fully mobile", "We bring the water, power and products"], ["Prices up front", "Starting prices posted for every package"], ["Hablamos español", "Call or book in Spanish"]]}
+      />
 
-        .pkg-card { transition: all 0.25s ease !important; }
-        .pkg-card:hover { 
-          border-color: rgba(125,211,252,0.5) !important;
-          box-shadow: 0 0 20px rgba(125,211,252,0.12), 0 4px 12px rgba(0,0,0,0.3);
-          transform: translateY(-2px);
-        }
+      <Tiles id="services" heading="Detailing packages" lede="Tap a package to start a booking with it picked. SUVs add $20 and trucks or large SUVs add $40."
+        tiles={TILES} onPick={pick} />
 
-        .price-row { transition: all 0.25s ease !important; }
-        .price-row:hover {
-          border-color: rgba(244,114,182,0.3) !important;
-          box-shadow: 0 0 16px rgba(244,114,182,0.1);
-          transform: translateX(4px);
-          background: rgba(30,41,59,0.6) !important;
-        }
+      <How img="/images/v4/keys-handoff" alt="Detailer handing keys back to a customer beside her freshly detailed car" />
 
-        .info-card { transition: all 0.3s ease !important; }
-        .info-card:hover {
-          border-color: rgba(244,114,182,0.4) !important;
-          box-shadow: 0 0 24px rgba(244,114,182,0.12), 0 8px 20px rgba(0,0,0,0.3);
-          transform: translateY(-4px);
-        }
-        .info-card:hover .info-icon { transform: scale(1.2); }
-        .info-icon { transition: transform 0.3s ease; display: inline-block; }
+      <Booking service="Mobile Detailing" siteName="magiccitydetailingmiami.com" heading="Book your detail"
+        intro="Choose a package, tell us about your car and pick a time, then pay a small deposit to hold it. We'll come to your home or office."
+        packages={PACKAGES} selectedPkg={selectedPkg} setSelectedPkg={setSelectedPkg} tab={tab} setTab={setTab}
+        phone={PHONE} phoneDisplay={PHONE_DISPLAY} needsVehicle quoteValue={quoteValue}
+        quoteOptions={["Interior detail", "Full detail", "Showroom Elite", "Ceramic coating", "Paint correction", "Detail Club membership", "Fleet or multiple cars", "Something else"]}
+        quotePrompt="Tell us about your car" quotePlaceholder="Year, make and model, and what you'd like done: pet hair, odor, swirls, ceramic, anything else." />
 
-        .cross-link { transition: all 0.25s ease !important; }
-        .cross-link:hover {
-          border-color: rgba(125,211,252,0.4) !important;
-          box-shadow: 0 0 16px rgba(125,211,252,0.1);
-          transform: translateY(-2px);
-        }
+      <Pricing heading="Detailing prices" lede="Prices are for sedans and coupes. SUVs and crossovers add $20; trucks and large SUVs add $40. Your exact price is confirmed before we start."
+        img="/images/v4/interior-detail" imgAlt="Interior detail in progress">
+        <PriceList packages={PACKAGES} specs={PACKAGE_SPECS} openKey={openKey} setOpenKey={setOpenKey} />
+        <h3 className="subhead" id="addons">Add-ons</h3>
+        <p className="subnote">Add any of these to a package. Mention them when you book or on your quote.</p>
+        <PriceList packages={addons} specs={ADDON_SPECS} openKey={openKey} setOpenKey={setOpenKey} prefix="addon_" />
+        <div className="extra-box">
+          <div className="price-row"><div><h3>Vehicle size</h3><p>Added to any package</p></div></div>
+          <ul>{VEHICLE_SURCHARGES.map(i => <li key={i}>{i}</li>)}</ul>
+        </div>
+      </Pricing>
 
-        .tab-btn { transition: all 0.2s ease !important; }
-        .tab-btn:hover { opacity: 0.9; transform: scale(1.02); }
-
-        .cta-btn { transition: all 0.3s ease !important; }
-        .cta-btn:hover { transform: scale(1.02); box-shadow: 0 0 24px rgba(244,114,182,0.3); }
-        .cta-btn:active { transform: scale(0.98); }
-
-        .phone-btn { transition: all 0.25s ease !important; }
-        .phone-btn:hover { box-shadow: 0 0 20px rgba(244,114,182,0.4); transform: scale(1.05); }
-
-        .stat-item { transition: all 0.3s ease; }
-        .stat-item:hover { transform: scale(1.08); }
-
-        .area-badge { transition: all 0.3s ease; }
-        .area-badge:hover { background: rgba(244,114,182,0.15) !important; border-color: rgba(244,114,182,0.5) !important; transform: scale(1.03); }
-
-        .deposit-box { transition: all 0.3s ease; }
-        .deposit-box:hover { box-shadow: 0 0 20px rgba(34,197,94,0.15); }
-
-        input:focus, textarea:focus, select:focus {
-          border-color: rgba(244,114,182,0.4) !important;
-          box-shadow: 0 0 12px rgba(244,114,182,0.1);
-        }
-
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-up { animation: fadeUp 0.6s ease forwards; }
-      `}</style>
-      <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
-
-      {/* NAV */}
-      <nav style={{
-        display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center",
-        padding: "14px 20px", borderBottom: "1px solid rgba(244,114,182,0.1)",
-        background: "rgba(11,17,32,0.95)", position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(12px)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "#0B1120", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid rgba(244,114,182,0.2)" }}>
-            <div style={{ display: "flex", gap: "2px", alignItems: "flex-end" }}>
-              {[10, 16, 12, 18].map((h, i) => (
-                <div key={i} style={{ width: "4px", height: `${h}px`, borderRadius: "1px", background: i % 2 === 0 ? "#F472B6" : "linear-gradient(180deg, #7DD3FC, #F472B6)" }} />
-              ))}
-            </div>
+      <section id="club" className="section member">
+        <div className="wrap">
+          <div className="section-head">
+            <h2 className="h2">Detail Club</h2>
+            <p className="lede">Keep your car looking freshly detailed with regular maintenance visits at home, for one monthly price.</p>
           </div>
-          <div>
-            <div style={{ fontSize: "14px", fontWeight: 700, letterSpacing: "0.5px" }} className="nav-logo-text">MAGIC CITY</div>
-            <div style={{ fontSize: "8px", color: "#94A3B8", letterSpacing: "2px" }} className="nav-sub-text">DETAILING</div>
-          </div>
-        </div>
-        <div className="nav-links" style={{ display: "flex", gap: "20px", fontSize: "12px", fontWeight: 500 }}>
-          {[
-            { label: "PRICING", target: "pricing" },
-            { label: "BOOK NOW", target: "booking" },
-            { label: "AREAS", target: "areas" },
-          ].map(l => (
-            <span key={l.label} onClick={() => document.getElementById(l.target)?.scrollIntoView({ behavior: "smooth" })} style={{ color: "#94A3B8", cursor: "pointer", letterSpacing: "0.5px", transition: "color 0.2s" }}
-              onMouseEnter={e => e.target.style.color = "#F472B6"}
-              onMouseLeave={e => e.target.style.color = "#94A3B8"}
-            >{l.label}</span>
-          ))}
-        </div>
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <a onClick={trackPhoneClick} href="tel:3053068078" className="phone-btn" style={{
-            padding: "8px 14px", borderRadius: "20px",
-            background: "linear-gradient(135deg, #F472B6, #E04DA0)",
-            color: "#fff", fontSize: "12px", fontWeight: 600, textDecoration: "none",
-          }}>📞 (305) 306-8078</a>
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section style={{ padding: "55px 20px 45px", textAlign: "center", background: "linear-gradient(180deg, #0B1120 0%, #131B2E 100%)" }}>
-        <div style={{
-          display: "inline-block", padding: "6px 20px", borderRadius: "20px",
-          border: "1px solid rgba(244,114,182,0.3)", background: "rgba(244,114,182,0.08)",
-          fontSize: "11px", color: "#F472B6", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "20px",
-        }} className="area-badge">
-          Serving Miami-Dade, Broward & Palm Beach
-        </div>
-
-        <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(30px, 6vw, 48px)", fontWeight: 700, lineHeight: 1.15, margin: "0 0 16px" }}>
-          Miami's Premier{"\n"}
-          <span style={{ background: "linear-gradient(135deg, #F472B6, #7DD3FC)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            Mobile Detailing
-          </span>
-        </h1>
-
-        <p style={{ fontSize: "16px", color: "#94A3B8", maxWidth: "480px", margin: "0 auto 24px", lineHeight: 1.6 }}>
-          We come to you. Interior details, full packages, ceramic coating, paint correction — showroom results at your doorstep.
-        </p>
-
-        <div style={{ display: "flex", justifyContent: "center", gap: "36px" }}>
-          {[{ big: "Insured", sub: "PROFESSIONALS" }, { big: "Guaranteed", sub: "SATISFACTION" }, { big: "We Come", sub: "TO YOU" }].map((s, i) => (
-            <div key={i} className="stat-item" style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "18px", fontWeight: 700 }}>{s.big}</div>
-              <div style={{ fontSize: "9px", color: "#94A3B8", letterSpacing: "1px", marginTop: "2px" }}>{s.sub}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* BOOKING */}
-      <section style={{ padding: "40px 16px 50px", background: "linear-gradient(180deg, #131B2E 0%, #0B1120 100%)" }}>
-        <div style={{ maxWidth: "560px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "24px" }}>
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", fontWeight: 700, margin: "0 0 6px" }}>Book Your Detail</h2>
-            <p style={{ fontSize: "13px", color: "#94A3B8" }}>Schedule online, get a free quote, or call us directly</p>
-          </div>
-
-          <div style={{ display: "flex", gap: "4px", marginBottom: "20px", background: "rgba(30,41,59,0.5)", borderRadius: "12px", padding: "4px" }}>
-            {[{ id: "book", label: "Book Online" }, { id: "quote", label: "Get a Quote" }, { id: "call", label: "Call Now" }].map(tab => (
-              <button key={tab.id} className="tab-btn" onClick={() => setBookingTab(tab.id)}
-                style={{
-                  flex: 1, padding: "10px", borderRadius: "10px", border: "none",
-                  background: bookingTab === tab.id ? "linear-gradient(135deg, #F472B6, #7DD3FC)" : "transparent",
-                  color: bookingTab === tab.id ? "#0B1120" : "#94A3B8",
-                  fontSize: "13px", fontWeight: bookingTab === tab.id ? 700 : 500,
-                  cursor: "pointer", fontFamily: "inherit",
-                }}
-              >{tab.label}</button>
+          <div className="member-grid">
+            {CLUB.map(c => (
+              <div key={c.name} className={"plan" + (c.featured ? " is-featured" : "")}>
+                <h3>{c.name}</h3>
+                <p className="plan-price">{c.price}<small>/month</small></p>
+                <ul className="checks">
+                  <li>{c.visits}: exterior hand wash and interior refresh</li>
+                  <li>15% off any other service</li>
+                  <li>Priority scheduling</li>
+                </ul>
+                <button className={"btn " + (c.featured ? "btn-pink" : "btn-outline")} onClick={askClub}>
+                  <span className="btn-label">Ask about joining</span>
+                  <span className="btn-icon"><ArrowIcon /></span>
+                </button>
+              </div>
             ))}
           </div>
-
-          {/* BOOK ONLINE */}
-          {bookingTab === "book" && (
-            <div style={{ padding: "24px 20px", borderRadius: "16px", background: "rgba(30,41,59,0.3)", border: "1px solid rgba(148,163,184,0.1)" }}>
-              <label style={labelStyle}>Select Package</label>
-              {PACKAGES.map((pkg, i) => (
-                <button key={i} className="pkg-card" onClick={() => setSelectedPkg(i)}
-                  style={{
-                    width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center",
-                    padding: "14px", marginBottom: "8px", borderRadius: "12px",
-                    border: selectedPkg === i ? "1px solid rgba(244,114,182,0.4)" : "1px solid rgba(148,163,184,0.1)",
-                    background: selectedPkg === i ? "rgba(244,114,182,0.08)" : "rgba(30,41,59,0.3)",
-                    color: "#F8FAFC", cursor: "pointer", fontFamily: "inherit", textAlign: "left",
-                    position: "relative", overflow: "hidden",
-                  }}>
-                  {pkg.tag && (
-                    <div style={{ position: "absolute", top: 0, right: 0, padding: "2px 10px", borderRadius: "0 10px 0 8px", background: pkg.tag === "Premium" ? "rgba(167,139,250,0.2)" : "rgba(244,114,182,0.2)", fontSize: "9px", fontWeight: 700, letterSpacing: "0.5px", color: pkg.tag === "Premium" ? "#A78BFA" : "#F472B6" }}>{pkg.tag}</div>
-                  )}
-                  <div>
-                    <div style={{ fontSize: "14px", fontWeight: 600, color: selectedPkg === i ? "#F472B6" : "#F8FAFC" }}>{pkg.name}</div>
-                    <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "3px" }}>{pkg.note}</div>
-                  </div>
-                  <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div style={{ fontSize: "16px", fontWeight: 700, color: "#F472B6" }}>{pkg.price}</div>
-                    <div style={{ fontSize: "10px", fontWeight: 600, marginTop: "2px", color: "#22C55E", background: "rgba(34,197,94,0.1)", padding: "2px 8px", borderRadius: "4px", display: "inline-block" }}>${pkg.deposit} deposit</div>
-                  </div>
-                </button>
-              ))}
-
-              {/* Vehicle Information */}
-              <div style={{ fontSize: "11px", color: "#94A3B8", letterSpacing: "0.5px", textTransform: "uppercase", marginTop: "12px", marginBottom: "10px", fontWeight: 500 }}>Vehicle Information</div>
-
-              <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                <div style={{ flex: "1 1 33%", minWidth: 0 }}>
-                  <label style={labelStyle}>Vehicle Year</label>
-                  <select value={vehicleYear} onChange={e => setVehicleYear(e.target.value)} style={{ ...inputStyle, height: "46px", WebkitAppearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394A3B8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
-                    <option value="">Select year</option>
-                    {[2026,2025,2024,2023,2022,2021,2020,2019,2018,2017,2016,2015,2014,2013,2012,2011,2010].map(y => <option key={y} value={y}>{y}</option>)}
-                    <option value="2009 or older">2009 or older</option>
-                  </select>
-                </div>
-                <div style={{ flex: "1 1 67%", minWidth: 0 }}>
-                  <label style={labelStyle}>Vehicle Make</label>
-                  <select value={vehicleMake} onChange={e => setVehicleMake(e.target.value)} style={{ ...inputStyle, height: "46px", WebkitAppearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394A3B8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
-                    <option value="">Select make</option>
-                    {["Acura","Audi","BMW","Buick","Cadillac","Chevrolet","Chrysler","Dodge","Ferrari","Fiat","Ford","Genesis","GMC","Honda","Hyundai","Infiniti","Jaguar","Jeep","Kia","Lamborghini","Land Rover","Lexus","Lincoln","Maserati","Mazda","McLaren","Mercedes-Benz","Mini","Mitsubishi","Nissan","Porsche","Ram","Rolls-Royce","Subaru","Tesla","Toyota","Volkswagen","Volvo","Other"].map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                <div style={{ flex: "1 1 50%", minWidth: 0 }}>
-                  <label style={labelStyle}>Vehicle Model</label>
-                  <input type="text" value={vehicleModel} onChange={e => setVehicleModel(e.target.value)} placeholder="e.g. Civic, Model 3, X5" style={{ ...inputStyle }} />
-                </div>
-                <div style={{ flex: "1 1 50%", minWidth: 0 }}>
-                  <label style={labelStyle}>Vehicle Color</label>
-                  <input type="text" value={vehicleColor} onChange={e => setVehicleColor(e.target.value)} placeholder="e.g. Black, White, Silver" style={{ ...inputStyle }} />
-                </div>
-              </div>
-
-              <label style={labelStyle}>Vehicle Size</label>
-              <div style={{ display: "flex", gap: "6px", marginBottom: "14px" }}>
-                {[
-                  { label: "Sedan / Coupe", surcharge: null },
-                  { label: "SUV / Crossover", surcharge: "+$20" },
-                  { label: "Truck / Large SUV", surcharge: "+$40" },
-                ].map(s => (
-                  <button key={s.label} onClick={() => setVehicleSize(s.label)}
-                    style={{
-                      flex: 1, padding: "10px 6px", borderRadius: "10px",
-                      border: vehicleSize === s.label ? "1px solid #F472B6" : "1px solid rgba(148,163,184,0.15)",
-                      background: vehicleSize === s.label ? "rgba(244,114,182,0.08)" : "transparent",
-                      color: vehicleSize === s.label ? "#F472B6" : "#94A3B8",
-                      fontSize: "11px", fontWeight: vehicleSize === s.label ? 600 : 400,
-                      cursor: "pointer", fontFamily: "inherit", textAlign: "center",
-                    }}
-                  >
-                    <div>{s.label}</div>
-                    {s.surcharge && <div style={{ fontSize: "10px", color: "#FBBF24", marginTop: "3px" }}>{s.surcharge}</div>}
-                  </button>
-                ))}
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", marginTop: "8px", marginBottom: "14px" }}>
-                <div style={{ flex: "1 1 0", minWidth: 0 }}>
-                  <label style={labelStyle}>Date</label>
-                  <input type="date" value={bookingDate} onChange={e => setBookingDate(e.target.value)} min={new Date().toISOString().split("T")[0]} style={{ ...inputStyle, height: "46px", WebkitAppearance: "none" }} />
-                </div>
-                <div style={{ flex: "1 1 0", minWidth: 0 }}>
-                  <label style={labelStyle}>Time</label>
-                  <select value={bookingTime} onChange={e => setBookingTime(e.target.value)} style={{ ...inputStyle, height: "46px", WebkitAppearance: "none", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2394A3B8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center" }}>
-                    <option value="">Select time</option>
-                    {TIMES.filter(t => {
-                      if (!bookingDate) return true;
-                      const today = new Date().toISOString().split("T")[0];
-                      if (bookingDate !== today) return true;
-                      const now = new Date();
-                      const [timePart, ampm] = t.value.split(" ");
-                      const [hr, min] = timePart.split(":").map(Number);
-                      let h24 = hr;
-                      if (ampm === "PM" && hr !== 12) h24 = hr + 12;
-                      if (ampm === "AM" && hr === 12) h24 = 0;
-                      return h24 > now.getHours() || (h24 === now.getHours() && min > now.getMinutes());
-                    }).map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <label style={labelStyle}>Full Name</label>
-              <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" style={{ ...inputStyle, marginBottom: "10px" }} />
-              <label style={labelStyle}>Phone</label>
-              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="(305) 000-0000" style={{ ...inputStyle, marginBottom: "10px" }} />
-              <label style={labelStyle}>Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" style={{ ...inputStyle, marginBottom: "10px" }} />
-              <label style={labelStyle}>Your Location (we come to you)</label>
-              <AddressAutocomplete value={address} onChange={setAddress} placeholder="Street, City, State, Zip Code" inputStyle={{ ...inputStyle, marginBottom: "20px" }} />
-
-              {selectedPackage && (
-                <div style={{ padding: "14px", borderRadius: "12px", marginBottom: "14px", background: "linear-gradient(135deg, rgba(34,197,94,0.08), rgba(244,114,182,0.08))", border: "1px solid rgba(34,197,94,0.2)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ fontSize: "12px", color: "#94A3B8" }}>Deposit to confirm booking</div>
-                    <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>Remaining balance due after service</div>
-                  </div>
-                  <div style={{ fontSize: "24px", fontWeight: 700, color: "#22C55E" }}>${depositAmount}</div>
-                </div>
-              )}
-
-              <button style={{ width: "100%", padding: "15px", borderRadius: "12px", border: "none", background: selectedPackage && !submitted ? "linear-gradient(135deg, #F472B6, #7DD3FC)" : "rgba(148,163,184,0.2)", color: selectedPackage ? "#0B1120" : "#94A3B8", fontSize: "15px", fontWeight: 700, cursor: selectedPackage ? "pointer" : "default", fontFamily: "inherit", opacity: selectedPackage && !submitted ? 1 : 0.5 }} className="cta-btn" onClick={handleBookingSubmit} disabled={submitting || submitted || !selectedPackage || !vehicleYear || !vehicleMake || !vehicleModel || !vehicleSize}>
-                {submitting ? "Submitting..." : submitted ? "Booking Submitted! ✅" : selectedPackage ? `Confirm Booking — $${depositAmount} Deposit` : "Select a package to continue"}
-              </button>
-              {submitted && (
-                <div style={{ textAlign: "center", padding: "14px", marginTop: "12px", borderRadius: "12px", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)" }}>
-                  <div style={{ fontSize: "14px", fontWeight: 600, color: "#22C55E", marginBottom: "4px" }}>Booking received! 🎉</div>
-                  <div style={{ fontSize: "12px", color: "#94A3B8" }}>Check your email for confirmation. A team member will reach out within 30 minutes.</div>
-                </div>
-              )}
-              {!submitted && (
-              <p style={{ textAlign: "center", fontSize: "11px", color: "#94A3B8", marginTop: "10px", lineHeight: 1.4 }}>Deposit secures your time slot. Remaining balance due after service is completed to your satisfaction.<br />Final price confirmed after on-site assessment.</p>
-              )}
-            </div>
-          )}
-
-          {bookingTab === "quote" && (
-            <div style={{ padding: "24px 20px", borderRadius: "16px", background: "rgba(30,41,59,0.3)", border: "1px solid rgba(148,163,184,0.1)" }}>
-              <div style={{ padding: "10px 14px", borderRadius: "10px", marginBottom: "16px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", fontSize: "12px", color: "#22C55E", textAlign: "center", fontWeight: 500 }}>Free quote — no deposit required</div>
-              <form onSubmit={handleQuoteSubmit}>
-              <label style={labelStyle}>Full Name</label>
-              <input type="text" placeholder="Your full name" name="name" style={{ ...inputStyle, marginBottom: "10px" }} />
-              <label style={labelStyle}>Phone</label>
-              <input type="tel" placeholder="(305) 000-0000" name="phone" style={{ ...inputStyle, marginBottom: "10px" }} />
-              <label style={labelStyle}>Email</label>
-              <input type="email" placeholder="your@email.com" name="email" style={{ ...inputStyle, marginBottom: "10px" }} />
-              <label style={labelStyle}>Tell us about your vehicle</label>
-              <textarea placeholder="Vehicle type, what you need done, any specific concerns (pet hair, odor, paint correction, etc.)" rows={3} style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5, marginBottom: "16px" }} />
-              <button style={{ width: "100%", padding: "15px", borderRadius: "12px", border: "none", background: "linear-gradient(135deg, #F472B6, #7DD3FC)", color: "#0B1120", fontSize: "15px", fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>Get My Free Quote</button>
-              </form>
-            </div>
-          )}
-
-          {bookingTab === "call" && (
-            <div style={{ padding: "30px 20px", borderRadius: "16px", textAlign: "center", background: "rgba(30,41,59,0.3)", border: "1px solid rgba(148,163,184,0.1)" }}>
-              <div style={{ fontSize: "48px", marginBottom: "16px" }}>📞</div>
-              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: "22px", margin: "0 0 8px" }}>Call Us Directly</h3>
-              <p style={{ fontSize: "13px", color: "#94A3B8", marginBottom: "6px" }}>Speak with a team member right now</p>
-              <div style={{ display: "inline-block", padding: "6px 14px", borderRadius: "8px", marginBottom: "20px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.15)", fontSize: "12px", color: "#22C55E", fontWeight: 500 }}>Free quotes by phone — call anytime, 24/7</div>
-              <br />
-              <a onClick={trackPhoneClick} href="tel:3053068078" style={{ display: "inline-block", padding: "14px 32px", borderRadius: "12px", background: "linear-gradient(135deg, #F472B6, #E04DA0)", color: "#fff", fontSize: "18px", fontWeight: 700, textDecoration: "none", fontFamily: "inherit" }}>(305) 306-8078</a>
-              <p style={{ fontSize: "12px", color: "#94A3B8", marginTop: "16px" }}>Available 7 AM – 9 PM, 7 days a week</p>
-            </div>
-          )}
+          <p className="member-fine">Membership starts with a Full Detail and runs for at least 6 months.</p>
         </div>
       </section>
 
-      {/* PRICING + ADD-ONS */}
-      <section id="pricing" style={{ padding: "50px 16px", background: "linear-gradient(180deg, #0B1120 0%, #131B2E 100%)" }}>
-        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", textAlign: "center", marginBottom: "6px" }}>Transparent <span style={{ color: "#F472B6" }}>Pricing</span></h2>
-          <p style={{ textAlign: "center", fontSize: "13px", color: "#94A3B8", marginBottom: "24px" }}>No hidden fees. No surprises. Just honest pricing.</p>
-          {PACKAGES.map((pkg, i) => {
-            const specs = PACKAGE_SPECS[pkg.name];
-            const isExpanded = expandedPkg[pkg.name];
-            return (
-              <div key={i} style={{ marginBottom: "10px" }}>
-                <div className="price-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px", borderRadius: isExpanded ? "12px 12px 0 0" : "12px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)" }}>
-                  <div>
-                    <div style={{ fontSize: "15px", fontWeight: 600 }}>{pkg.name}</div>
-                    <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>{pkg.note}</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "18px", fontWeight: 700, color: "#F472B6" }}>{pkg.price}</div>
-                    <div style={{ fontSize: "10px", color: "#22C55E", marginTop: "2px" }}>${pkg.deposit} deposit to book</div>
-                  </div>
-                </div>
-                {specs && (
-                  <>
-                    <button
-                      onClick={() => setExpandedPkg(prev => ({ ...prev, [pkg.name]: !prev[pkg.name] }))}
-                      style={{ width: "100%", padding: "10px 16px", border: "none", borderTop: "1px solid rgba(148,163,184,0.06)", background: "rgba(30,41,59,0.25)", color: "#F472B6", fontSize: "13px", fontWeight: 500, cursor: "pointer", fontFamily: "'Outfit', sans-serif", borderRadius: isExpanded ? "0" : "0 0 12px 12px", transition: "all 0.2s" }}
-                    >
-                      {isExpanded ? "Hide Details ▴" : "See What's Included ▾"}
-                    </button>
-                    <div style={{ maxHeight: isExpanded ? "1200px" : "0", overflow: "hidden", transition: "max-height 0.4s ease" }}>
-                      <div style={{ background: "rgba(244,114,182,0.04)", border: "1px solid rgba(244,114,182,0.12)", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "16px" }}>
-                        <div style={{ display: "inline-block", padding: "4px 12px", borderRadius: "12px", background: "rgba(125,211,252,0.1)", border: "1px solid rgba(125,211,252,0.2)", fontSize: "11px", color: "#7DD3FC", marginBottom: "12px" }}>
-                          Estimated Time: {specs.time}
-                        </div>
-                        {specs.tierUp && (
-                          <p style={{ fontSize: "13px", color: "#F472B6", fontStyle: "italic", margin: "0 0 8px" }}>{specs.tierUp}</p>
-                        )}
-                        {specs.items.map((item, j) => (
-                          <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "4px" }}>
-                            <span style={{ color: "#22C55E", fontSize: "12px", lineHeight: "1.8", flexShrink: 0 }}>✓</span>
-                            <span style={{ fontSize: "13px", color: "#CBD5E1", lineHeight: 1.8 }}>{item}</span>
-                          </div>
-                        ))}
-                        {specs.note && (
-                          <p style={{ fontSize: "11px", color: "#94A3B8", fontStyle: "italic", marginTop: "12px", marginBottom: 0, lineHeight: 1.5 }}>{specs.note}</p>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })}
-
-          <h3 style={{ fontSize: "18px", fontWeight: 600, marginTop: "32px", marginBottom: "16px", textAlign: "center", color: "#F8FAFC" }}>Add-On Services</h3>
-          {Object.entries(ADDON_SPECS).map(([name, spec], i) => {
-            const isExpanded = expandedPkg["addon_" + name];
-            return (
-              <div key={i} style={{ marginBottom: "8px" }}>
-                <div className="price-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", borderRadius: isExpanded ? "12px 12px 0 0" : "12px", background: "rgba(30,41,59,0.35)", border: "1px solid rgba(148,163,184,0.08)", fontSize: "14px" }}>
-                  <span style={{ fontWeight: 500 }}>{name}</span>
-                  <span style={{ color: "#F472B6", fontWeight: 600 }}>{spec.price}</span>
-                </div>
-                <button
-                  onClick={() => setExpandedPkg(prev => ({ ...prev, ["addon_" + name]: !prev["addon_" + name] }))}
-                  style={{ width: "100%", padding: "8px 16px", border: "none", borderTop: "1px solid rgba(148,163,184,0.06)", background: "rgba(30,41,59,0.2)", color: "#F472B6", fontSize: "12px", fontWeight: 500, cursor: "pointer", fontFamily: "'Outfit', sans-serif", borderRadius: isExpanded ? "0" : "0 0 12px 12px", transition: "all 0.2s" }}
-                >
-                  {isExpanded ? "Hide Details ▴" : "See What's Included ▾"}
-                </button>
-                <div style={{ maxHeight: isExpanded ? "600px" : "0", overflow: "hidden", transition: "max-height 0.35s ease" }}>
-                  <div style={{ background: "rgba(244,114,182,0.04)", border: "1px solid rgba(244,114,182,0.12)", borderTop: "none", borderRadius: "0 0 10px 10px", padding: "14px 16px" }}>
-                    {spec.items.map((item, j) => (
-                      <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "3px" }}>
-                        <span style={{ color: "#22C55E", fontSize: "12px", lineHeight: "1.8", flexShrink: 0 }}>✓</span>
-                        <span style={{ fontSize: "13px", color: "#CBD5E1", lineHeight: 1.8 }}>{item}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          <div style={{ marginTop: "24px", padding: "16px", borderRadius: "10px", background: "rgba(30,41,59,0.3)", border: "1px solid rgba(148,163,184,0.08)" }}>
-            <h4 style={{ fontSize: "13px", fontWeight: 600, color: "#94A3B8", marginBottom: "10px", marginTop: 0 }}>Vehicle Size Surcharges</h4>
-            {VEHICLE_SURCHARGES.map((line, i) => (
-              <div key={i} style={{ fontSize: "12px", color: "#94A3B8", lineHeight: 1.8 }}>{line}</div>
-            ))}
+      <section className="section info alt">
+        <div className="wrap">
+          <div className="section-head">
+            <h2 className="h2">What we do</h2>
+            <p className="lede">Everything is done on site. You don't need to drop the car anywhere.</p>
           </div>
-
-          <p style={{ textAlign: "center", fontSize: "11px", color: "#94A3B8", marginTop: "16px" }}>Deposit secures your appointment. Remaining balance due after completed service. Call to book with no deposit.</p>
+          <ul className="info-grid">
+            {DETAIL_SERVICES.map(c => <li key={c.name}><h3>{c.name}</h3><p>{c.desc}</p></li>)}
+          </ul>
         </div>
       </section>
 
-      {/* SERVICES */}
-      <section style={{ padding: "50px 16px", background: "linear-gradient(180deg, #131B2E 0%, #0B1120 100%)" }}>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", textAlign: "center", marginBottom: "24px" }}>What We <span style={{ color: "#F472B6" }}>Offer</span></h2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", maxWidth: "500px", margin: "0 auto" }}>
-          {DETAIL_SERVICES.map((s, i) => (
-            <div key={i} style={{ padding: "16px", borderRadius: "12px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.08)", textAlign: "center" }}>
-              <div className="info-icon" style={{ fontSize: "28px", marginBottom: "8px" }}>{s.icon}</div>
-              <div style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>{s.name}</div>
-              <div style={{ fontSize: "10px", color: "#94A3B8", lineHeight: 1.3 }}>{s.desc}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* AREAS */}
-      <section style={{ padding: "50px 16px", background: "linear-gradient(180deg, #0B1120 0%, #131B2E 100%)" }}>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", textAlign: "center", marginBottom: "24px" }}>Areas We <span style={{ color: "#F472B6" }}>Serve</span></h2>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center", maxWidth: "600px", margin: "0 auto" }}>
-          {AREAS.map((area, i) => (
-            <span key={i} onMouseEnter={() => setHoveredArea(i)} onMouseLeave={() => setHoveredArea(null)}
-              style={{ padding: "8px 16px", borderRadius: "20px", border: hoveredArea === i ? "1px solid #F472B6" : "1px solid rgba(148,163,184,0.15)", background: hoveredArea === i ? "rgba(244,114,182,0.1)" : "rgba(30,41,59,0.3)", color: hoveredArea === i ? "#F472B6" : "#94A3B8", fontSize: "12px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}
-            >{area}</span>
-          ))}
-        </div>
-      </section>
-
-      {/* CROSS-LINK */}
-      <section style={{ padding: "30px 16px", background: "linear-gradient(180deg, #131B2E 0%, #0B1120 100%)", textAlign: "center" }}>
-        <p style={{ fontSize: "13px", color: "#94A3B8", marginBottom: "12px" }}>We also offer:</p>
-        <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
-          {[{ name: "Junk Removal", link: "magiccityjunkremovalmiami.com" }, { name: "Pressure Washing", link: "magiccitypressurewashingmiami.com" }].map((s, i) => (
-            <a key={i} href={`https://${s.link}`} target="_blank" rel="noopener noreferrer" style={{ padding: "10px 20px", borderRadius: "10px", background: "rgba(30,41,59,0.4)", border: "1px solid rgba(148,163,184,0.1)", textDecoration: "none", color: "#F472B6", fontSize: "13px", fontWeight: 500 }}>{s.name} →</a>
-          ))}
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer id="footer" style={{ padding: "30px 16px", textAlign: "center", borderTop: "1px solid rgba(148,163,184,0.1)", background: "#0B1120" }}>
-        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: "18px", fontWeight: 700, background: "linear-gradient(135deg, #F472B6, #7DD3FC)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: "8px" }}>Magic City Detailing</div>
-        <p style={{ fontSize: "12px", color: "#94A3B8", marginBottom: "12px" }}>Miami-Dade • Broward • Palm Beach</p>
-        <p style={{ fontSize: "12px", color: "#F472B6", fontWeight: 600, letterSpacing: "1px", marginBottom: "8px" }}>Contact Us:</p>
-        <a onClick={trackPhoneClick} href="tel:3053068078" style={{ fontSize: "14px", color: "#7DD3FC", textDecoration: "none", fontWeight: 600 }}>(305) 306-8078</a>
-        <br />
-        <a href="mailto:info@magiccityservicesmiami.com" style={{ fontSize: "13px", color: "#F472B6", textDecoration: "none", fontWeight: 500, marginTop: "6px", display: "inline-block" }}>info@magiccityservicesmiami.com</a>
-        <p style={{ fontSize: "10px", color: "rgba(148,163,184,0.4)", marginTop: "16px" }}>© 2026 Magic City Services LLC. All rights reserved.</p>
-      </footer>
-    </div>
+      <Areas />
+      <Band phone={PHONE} phoneDisplay={PHONE_DISPLAY} onQuote={() => { setTab("quote"); goTo("booking"); }} />
+      <Footer sub="Mobile Detailing" current="Mobile Detailing" phone={PHONE} phoneDisplay={PHONE_DISPLAY}
+        about="Magic City Detailing brings interior and exterior detailing, paint correction and ceramic coating to your driveway across South Florida. Part of Magic City Services." />
+    </Page>
   );
 }
-
-const labelStyle = { fontSize: "11px", color: "#94A3B8", display: "block", marginBottom: "6px", letterSpacing: "0.5px", textTransform: "uppercase" };
-const inputStyle = { width: "100%", padding: "11px 12px", borderRadius: "8px", border: "1px solid rgba(148,163,184,0.2)", background: "rgba(11,17,32,0.8)", color: "#F8FAFC", fontSize: "14px", fontFamily: "'Outfit', sans-serif", outline: "none", boxSizing: "border-box" };
