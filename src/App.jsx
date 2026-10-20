@@ -285,9 +285,9 @@ export default function DetailingSite() {
         </div>
       </section>
 
-      <Areas />
+      <Areas prefix="mobile-detailing" />
       <Band phone={PHONE} phoneDisplay={PHONE_DISPLAY} onQuote={() => { setTab("quote"); goTo("booking"); }} />
-      <Footer sub="Mobile Detailing" current="Mobile Detailing" phone={PHONE} phoneDisplay={PHONE_DISPLAY}
+      <Footer services={[["interior-detailing", "Interior detailing"], ["full-detail", "Full detail"], ["ceramic-coating", "Ceramic coating"], ["paint-correction", "Paint correction"], ["fleet-detailing", "Fleet detailing"]]} sub="Mobile Detailing" current="Mobile Detailing" phone={PHONE} phoneDisplay={PHONE_DISPLAY}
         about="Magic City Detailing brings interior and exterior detailing, paint correction and ceramic coating to your driveway across South Florida. Part of Magic City Services." />
     </Page>
   );
